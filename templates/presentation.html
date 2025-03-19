@@ -161,7 +161,12 @@
             <button id="prev-fullscreen" class="btn btn-sm btn-light" {% if current_page <= 1 %}disabled{% endif %}>
                 <i class="bi bi-arrow-left"></i>
             </button>
-            <span id="fullscreen-page-indicator" class="mx-2">{{ current_page }}/{{ current_presentation.pages if current_presentation else 0 }}</span>
+            <div class="page-input-group d-inline-flex align-items-center mx-2">
+                <input type="number" id="fullscreen-page-input" class="form-control form-control-sm" style="width: 60px;" value="{{ current_page }}" min="1" max="{{ current_presentation.pages if current_presentation else 1 }}">
+                <span class="mx-1">/</span>
+                <span>{{ current_presentation.pages if current_presentation else 0 }}</span>
+                <button id="fullscreen-go-page" class="btn btn-sm btn-primary ms-1">前往</button>
+            </div>
             <button id="next-fullscreen" class="btn btn-sm btn-light" {% if current_page >= current_presentation.pages %}disabled{% endif %}>
                 <i class="bi bi-arrow-right"></i>
             </button>
@@ -282,7 +287,10 @@
         
         // 退出全螢幕按鈕事件
         $('#exit-fullscreen').on('click', function() {
+            console.log("點擊退出全螢幕按鈕");
             exitFullscreenMode();
+            // 確保即使全螢幕事件沒有被觸發，也能夠隱藏全螢幕界面
+            $('#fullscreen-presentation').addClass('d-none');
         });
         
         // 全螢幕模式導航按鈕事件
@@ -297,6 +305,16 @@
             console.log("點擊全螢幕下一頁按鈕");
             if (!$(this).prop('disabled')) {
                 navigateToPage(window.currentPage + 1);
+            }
+        });
+        
+        // 全螢幕模式前往按鈕事件
+        $('#fullscreen-go-page').on('click', function() {
+            const page = parseInt($('#fullscreen-page-input').val());
+            if (!isNaN(page) && page >= 1 && page <= window.totalPages) {
+                navigateToPage(page);
+            } else {
+                alert('請輸入有效的頁碼');
             }
         });
         
@@ -379,6 +397,7 @@
         // 更新頁面輸入框
         $('#page-input').val(window.currentPage);
         $('#page-input-bottom').val(window.currentPage);
+        $('#fullscreen-page-input').val(window.currentPage);
         
         // 更新導航按鈕狀態
         $('#prevPage').prop('disabled', window.currentPage <= 1);
@@ -472,16 +491,23 @@
     }
     
     function exitFullscreenMode() {
-        const elem = document.documentElement;
-        if (elem.exitFullscreen) {
-            elem.exitFullscreen();
-        } else if (elem.mozCancelFullScreen) {
-            elem.mozCancelFullScreen();
-        } else if (elem.webkitCancelFullScreen) {
-            elem.webkitCancelFullScreen();
-        } else if (elem.msCancelFullScreen) {
-            elem.msCancelFullScreen();
+        console.log("執行退出全螢幕函數");
+        
+        // 嘗試使用標準方法退出全螢幕
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
         }
+        
+        // 無論全螢幕API是否成功，都確保隱藏全螢幕界面
+        setTimeout(function() {
+            $('#fullscreen-presentation').addClass('d-none');
+        }, 100);
     }
     
     function handleFullscreenChange() {
