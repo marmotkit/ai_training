@@ -391,6 +391,79 @@
             </div>
         </div>
     </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-chat-dots me-2"></i>問答管理
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>提問者</th>
+                                    <th>問題標題</th>
+                                    <th>提問日期</th>
+                                    <th>狀態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for question in questions %}
+                                <tr>
+                                    <td>{{ question.id }}</td>
+                                    <td>{{ question.name }}</td>
+                                    <td>{{ question.title }}</td>
+                                    <td>{{ question.date }}</td>
+                                    <td>
+                                        {% if question.answer %}
+                                        <span class="badge bg-success">已回答</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">待回答</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-primary view-question-btn" 
+                                                data-question-id="{{ question.id }}"
+                                                data-question-title="{{ question.title }}"
+                                                data-question-content="{{ question.content }}"
+                                                data-question-name="{{ question.name }}"
+                                                data-question-date="{{ question.date }}"
+                                                data-question-answer="{{ question.answer or '' }}"
+                                                data-bs-toggle="modal" data-bs-target="#viewQuestionModal">
+                                            <i class="bi bi-eye"></i> 查看
+                                        </button>
+                                        {% if not question.answer %}
+                                        <button type="button" class="btn btn-sm btn-success answer-question-btn"
+                                                data-question-id="{{ question.id }}"
+                                                data-question-title="{{ question.title }}"
+                                                data-bs-toggle="modal" data-bs-target="#answerQuestionModal">
+                                            <i class="bi bi-chat"></i> 回答
+                                        </button>
+                                        {% else %}
+                                        <button type="button" class="btn btn-sm btn-warning edit-answer-btn"
+                                                data-question-id="{{ question.id }}"
+                                                data-question-title="{{ question.title }}"
+                                                data-question-answer="{{ question.answer }}"
+                                                data-bs-toggle="modal" data-bs-target="#answerQuestionModal">
+                                            <i class="bi bi-pencil"></i> 編輯回答
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- 刪除教材確認模態框 -->
@@ -535,6 +608,85 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteSupplementary">確認刪除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 查看問題模態框 -->
+<div class="modal fade" id="viewQuestionModal" tabindex="-1" aria-labelledby="viewQuestionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="viewQuestionModalLabel">查看問題</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h5 id="viewQuestionTitle" class="fw-bold"></h5>
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">提問者: <span id="viewQuestionName"></span></small>
+                        <small class="text-muted">提問時間: <span id="viewQuestionDate"></span></small>
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p id="viewQuestionContent"></p>
+                    </div>
+                </div>
+                <div id="viewAnswerSection" class="mb-3">
+                    <h6 class="text-success">講師回答:</h6>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <p id="viewQuestionAnswer"></p>
+                        </div>
+                    </div>
+                </div>
+                <div id="viewCommentsSection">
+                    <h6 class="text-info">討論:</h6>
+                    <div id="viewQuestionComments" class="mb-3">
+                        <!-- 評論將在這裡動態添加 -->
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="newCommentContent" class="form-label">新增評論</label>
+                                <textarea class="form-control" id="newCommentContent" rows="3"></textarea>
+                            </div>
+                            <button type="button" class="btn btn-primary" id="submitNewComment">提交評論</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                <button type="button" class="btn btn-primary" id="goToAnswerBtn">回答問題</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 回答問題模態框 -->
+<div class="modal fade" id="answerQuestionModal" tabindex="-1" aria-labelledby="answerQuestionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="answerQuestionModalLabel">回答問題</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h5 id="answerQuestionTitle" class="fw-bold"></h5>
+                </div>
+                <div class="mb-3">
+                    <label for="answerContent" class="form-label">您的回答</label>
+                    <textarea class="form-control" id="answerContent" rows="6" required></textarea>
+                </div>
+                <input type="hidden" id="answerQuestionId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="submitAnswer">提交回答</button>
             </div>
         </div>
     </div>
@@ -1032,6 +1184,209 @@ document.addEventListener('DOMContentLoaded', function() {
             showAlert('danger', '刪除補充資料時發生錯誤');
         });
     });
+    
+    // 查看問題
+    document.querySelectorAll('.view-question-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const questionId = this.getAttribute('data-question-id');
+            const title = this.getAttribute('data-question-title');
+            const content = this.getAttribute('data-question-content');
+            const name = this.getAttribute('data-question-name');
+            const date = this.getAttribute('data-question-date');
+            const answer = this.getAttribute('data-question-answer');
+            
+            document.getElementById('viewQuestionTitle').textContent = title;
+            document.getElementById('viewQuestionName').textContent = name;
+            document.getElementById('viewQuestionDate').textContent = date;
+            document.getElementById('viewQuestionContent').textContent = content;
+            
+            // 設置回答問題按鈕的問題ID
+            document.getElementById('goToAnswerBtn').setAttribute('data-question-id', questionId);
+            
+            // 顯示或隱藏回答區域
+            const answerSection = document.getElementById('viewAnswerSection');
+            if (answer && answer.trim() !== '') {
+                document.getElementById('viewQuestionAnswer').textContent = answer;
+                answerSection.style.display = 'block';
+            } else {
+                answerSection.style.display = 'none';
+            }
+            
+            // 載入評論
+            loadQuestionComments(questionId);
+        });
+    });
+    
+    // 回答問題按鈕點擊事件
+    document.getElementById('goToAnswerBtn').addEventListener('click', function() {
+        const questionId = this.getAttribute('data-question-id');
+        const title = document.getElementById('viewQuestionTitle').textContent;
+        
+        // 關閉查看模態框
+        const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewQuestionModal'));
+        viewModal.hide();
+        
+        // 設置回答模態框的值
+        document.getElementById('answerQuestionId').value = questionId;
+        document.getElementById('answerQuestionTitle').textContent = title;
+        
+        // 打開回答模態框
+        const answerModal = new bootstrap.Modal(document.getElementById('answerQuestionModal'));
+        answerModal.show();
+    });
+    
+    // 直接回答問題按鈕
+    document.querySelectorAll('.answer-question-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const questionId = this.getAttribute('data-question-id');
+            const title = this.getAttribute('data-question-title');
+            
+            document.getElementById('answerQuestionId').value = questionId;
+            document.getElementById('answerQuestionTitle').textContent = title;
+            document.getElementById('answerContent').value = '';
+        });
+    });
+    
+    // 編輯回答按鈕
+    document.querySelectorAll('.edit-answer-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const questionId = this.getAttribute('data-question-id');
+            const title = this.getAttribute('data-question-title');
+            const answer = this.getAttribute('data-question-answer');
+            
+            document.getElementById('answerQuestionId').value = questionId;
+            document.getElementById('answerQuestionTitle').textContent = title;
+            document.getElementById('answerContent').value = answer;
+        });
+    });
+    
+    // 提交回答
+    document.getElementById('submitAnswer').addEventListener('click', function() {
+        const questionId = document.getElementById('answerQuestionId').value;
+        const answer = document.getElementById('answerContent').value;
+        
+        if (!answer.trim()) {
+            alert('請輸入回答內容');
+            return;
+        }
+        
+        // 發送API請求
+        fetch('/lecturer/answer-question', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                question_id: questionId,
+                answer: answer
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('回答已提交！');
+                // 關閉模態框
+                const modal = bootstrap.Modal.getInstance(document.getElementById('answerQuestionModal'));
+                modal.hide();
+                
+                // 重新加載頁面
+                window.location.reload();
+            } else {
+                alert('提交失敗：' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('提交過程中出現錯誤，請稍後再試。');
+        });
+    });
+    
+    // 提交新評論
+    document.getElementById('submitNewComment').addEventListener('click', function() {
+        const questionId = document.getElementById('goToAnswerBtn').getAttribute('data-question-id');
+        const content = document.getElementById('newCommentContent').value;
+        
+        if (!content.trim()) {
+            alert('請輸入評論內容');
+            return;
+        }
+        
+        // 發送API請求
+        fetch('/api/submit-comment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                question_id: questionId,
+                name: '講師',
+                content: content,
+                date: new Date().toLocaleString('zh-TW', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('評論已提交！');
+                document.getElementById('newCommentContent').value = '';
+                
+                // 重新載入評論
+                loadQuestionComments(questionId);
+            } else {
+                alert('提交失敗：' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('提交過程中出現錯誤，請稍後再試。');
+        });
+    });
+    
+    // 載入問題評論
+    function loadQuestionComments(questionId) {
+        // 在實際應用中，這裡應該發送API請求獲取評論
+        // 這裡我們使用模擬數據
+        fetch(`/api/get-question-comments?question_id=${questionId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const commentsContainer = document.getElementById('viewQuestionComments');
+                    commentsContainer.innerHTML = '';
+                    
+                    if (data.comments && data.comments.length > 0) {
+                        data.comments.forEach(comment => {
+                            const commentElement = document.createElement('div');
+                            commentElement.className = 'card mb-2';
+                            commentElement.innerHTML = `
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="card-subtitle mb-2 ${comment.is_lecturer ? 'text-primary' : 'text-muted'}">
+                                            ${comment.name} ${comment.is_lecturer ? '<span class="badge bg-primary">講師</span>' : ''}
+                                        </h6>
+                                        <small class="text-muted">${comment.date}</small>
+                                    </div>
+                                    <p class="card-text">${comment.content}</p>
+                                </div>
+                            `;
+                            commentsContainer.appendChild(commentElement);
+                        });
+                    } else {
+                        commentsContainer.innerHTML = '<p class="text-muted">暫無評論</p>';
+                    }
+                } else {
+                    console.error('載入評論失敗：', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
 });
 </script>
 {% endblock %}

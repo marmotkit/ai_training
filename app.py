@@ -280,21 +280,59 @@ default_uploads = [
 default_questions = [
     {
         "id": 1,
-        "question": "如何下載課程資料？",
-        "answer": "您可以在「資源」頁面找到所有可下載的課程資料。",
-        "timestamp": "2023-01-15 10:30:00"
+        "name": "王同學",
+        "title": "如何下載課程資料？",
+        "content": "我在尋找課程的補充資料，但不知道從哪裡可以下載到，請問應該怎麼操作？",
+        "date": "2023/04/15 10:30",
+        "answer": "您可以在「資源」頁面找到所有可下載的課程資料。點擊頁面上方的「資源」選項卡，然後在列表中找到您需要的資料進行下載。",
+        "answer_date": "2023/04/15 14:45",
+        "helpful_count": 5,
+        "related_to": 1,
+        "comments": [
+            {
+                "id": 1,
+                "name": "李同學",
+                "content": "謝謝講師的回答，我找到了！",
+                "date": "2023/04/16 09:15",
+                "is_lecturer": False
+            }
+        ]
     },
     {
         "id": 2,
-        "question": "考試範圍包含哪些內容？",
-        "answer": "考試範圍包含課程中所有的章節，特別是第一章和第二章的內容。",
-        "timestamp": "2023-01-16 14:45:00"
+        "name": "陳同學",
+        "title": "考試範圍包含哪些內容？",
+        "content": "想請問一下期中考試的範圍是什麼？需要特別準備哪些章節？",
+        "date": "2023/04/17 14:45",
+        "answer": "考試範圍包含課程中所有的章節，特別是第一章和第二章的內容。建議重點複習課程簡報中標記為「重要」的部分。",
+        "answer_date": "2023/04/17 16:30",
+        "helpful_count": 8,
+        "related_to": 2,
+        "comments": []
     },
     {
         "id": 3,
-        "question": "是否有課後輔導時間？",
-        "answer": "是的，每週三下午 2-4 點有課後輔導時間，地點在 A307 教室。",
-        "timestamp": "2023-01-17 09:15:00"
+        "name": "林同學",
+        "title": "是否有課後輔導時間？",
+        "content": "我對某些概念還不太理解，想知道是否有額外的輔導時間可以請教老師？",
+        "date": "2023/04/18 09:15",
+        "answer": "是的，每週三下午 2-4 點有課後輔導時間，地點在 A307 教室。您也可以透過平台的問答功能隨時提問。",
+        "answer_date": "2023/04/18 10:20",
+        "helpful_count": 3,
+        "related_to": None,
+        "comments": []
+    },
+    {
+        "id": 4,
+        "name": "張同學",
+        "title": "如何使用AI演示功能？",
+        "content": "我看到平台有AI演示功能，但不太清楚如何操作，可以提供一些指引嗎？",
+        "date": "2023/04/19 11:30",
+        "answer": None,
+        "answer_date": None,
+        "helpful_count": 1,
+        "related_to": 3,
+        "comments": []
     }
 ]
 
@@ -475,6 +513,11 @@ def resources():
 
 @app.route('/qa')
 def qa():
+    # 加載最新的數據
+    global questions, presentations
+    questions = load_data_from_file(QUESTIONS_FILE, default_questions)
+    presentations = load_data_from_file(PRESENTATIONS_FILE, default_presentations)
+    
     return render_template('qa.html', questions=questions, presentations=presentations)
 
 # 講師登入
@@ -517,7 +560,7 @@ def lecturer_login():
                         session['lecturer_title'] = config.get('lecturer_title')
                     if 'lecturer_email' in config:
                         session['lecturer_email'] = config.get('lecturer_email')
-                    print("登入時已從配置文件載入講師資料")
+                        print("登入時已從配置文件載入講師資料")
             except Exception as e:
                 print(f"登入時載入講師資料錯誤: {str(e)}")
         
@@ -547,8 +590,17 @@ def lecturer_logout():
 @app.route('/lecturer/dashboard')
 @login_required
 def lecturer_dashboard():
+    # 獲取最新的數據
+    global questions, presentations, uploads, references, supplementary
+    questions = load_data_from_file(QUESTIONS_FILE, default_questions)
+    presentations = load_data_from_file(PRESENTATIONS_FILE, default_presentations)
+    supplementary = load_data_from_file(SUPPLEMENTARY_FILE, default_supplementary)
+    
     # 加載講師信息
     lecturer_info = lecturer_accounts.get(session.get('lecturer_username'))
+    
+    # 獲取未回答的問題數量
+    unanswered_questions_count = sum(1 for q in questions if q.get('answer') is None)
     
     # 加載教材數據
     return render_template('lecturer/dashboard.html', 
@@ -557,23 +609,42 @@ def lecturer_dashboard():
                           uploads=uploads,
                           references=references,
                           supplementary=supplementary,
-                          questions=questions)
+                          questions=questions,
+                          unanswered_questions_count=unanswered_questions_count)
 
 @app.route('/lecturer/answer-question', methods=['POST'])
 @login_required
-def answer_question():
-    data = request.get_json()
-    question_id = data.get('questionId')
-    answer = data.get('answer')
-    
-    # 尋找要回答的問題
-    for question in questions:
-        if question['id'] == question_id:
-            question['answer'] = answer
-            save_data_to_file(QUESTIONS_FILE, questions)
-            return jsonify({"success": True})
-    
-    return jsonify({"success": False, "message": "找不到問題"})
+def lecturer_answer_question():
+    try:
+        data = request.get_json()
+        question_id = data.get('question_id')
+        answer = data.get('answer')
+        
+        # 驗證必要欄位
+        if not question_id or not answer:
+            return jsonify({"success": False, "message": "缺少必要欄位"})
+        
+        # 加載現有問題
+        global questions
+        questions = load_data_from_file(QUESTIONS_FILE, default_questions)
+        
+        # 查找問題並添加回答
+        for question in questions:
+            if question['id'] == int(question_id):
+                question['answer'] = answer
+                question['answer_date'] = datetime.now().strftime('%Y/%m/%d %H:%M')
+                
+                # 保存到文件
+                success = save_data_to_file(QUESTIONS_FILE, questions)
+                if not success:
+                    return jsonify({"success": False, "message": "保存回答時發生錯誤"})
+                
+                return jsonify({"success": True})
+        
+        return jsonify({"success": False, "message": "找不到指定的問題"})
+    except Exception as e:
+        app.logger.error(f"回答問題時發生錯誤: {str(e)}")
+        return jsonify({"success": False, "message": f"回答問題時發生錯誤: {str(e)}"})
 
 # 講師個人資料更新
 @app.route('/lecturer/update-profile', methods=['POST'])
@@ -830,22 +901,135 @@ def generate_image():
 
 @app.route('/api/submit-question', methods=['POST'])
 def submit_question():
-    name = request.json.get('name', '')
-    content = request.json.get('content', '')
-    
-    # 在真實應用中，會將問題存儲到數據庫
-    new_question = {
-        "id": len(questions) + 1,
-        "name": name,
-        "date": "2023/04/11 10:00",  # 應該使用實際時間
-        "content": content,
-        "answer": None
-    }
-    
-    questions.insert(0, new_question)
-    save_data_to_file(QUESTIONS_FILE, questions)
-    
-    return jsonify({"success": True, "question": new_question})
+    try:
+        data = request.json
+        name = data.get('name', '')
+        title = data.get('title', '')
+        content = data.get('content', '')
+        related_to = data.get('related_to')
+        date = data.get('date', datetime.now().strftime('%Y/%m/%d %H:%M'))
+        
+        # 驗證必要欄位
+        if not name or not title or not content:
+            return jsonify({"success": False, "message": "缺少必要欄位"})
+        
+        # 加載現有問題
+        global questions
+        questions = load_data_from_file(QUESTIONS_FILE, default_questions)
+        
+        # 生成新問題ID
+        new_id = 1
+        if questions:
+            new_id = max(q['id'] for q in questions) + 1
+        
+        # 創建新問題
+        new_question = {
+            "id": new_id,
+            "name": name,
+            "title": title,
+            "content": content,
+            "date": date,
+            "answer": None,
+            "answer_date": None,
+            "helpful_count": 0,
+            "related_to": related_to,
+            "comments": []
+        }
+        
+        # 添加到問題列表
+        questions.insert(0, new_question)
+        
+        # 保存到文件
+        success = save_data_to_file(QUESTIONS_FILE, questions)
+        if not success:
+            return jsonify({"success": False, "message": "保存問題時發生錯誤"})
+        
+        return jsonify({"success": True, "question": new_question})
+    except Exception as e:
+        app.logger.error(f"提交問題時發生錯誤: {str(e)}")
+        return jsonify({"success": False, "message": f"提交問題時發生錯誤: {str(e)}"})
+
+@app.route('/api/submit-comment', methods=['POST'])
+def submit_comment():
+    try:
+        data = request.json
+        question_id = data.get('question_id')
+        name = data.get('name', '')
+        content = data.get('content', '')
+        date = data.get('date', datetime.now().strftime('%Y/%m/%d %H:%M'))
+        is_lecturer = session.get('is_lecturer', False)
+        
+        # 驗證必要欄位
+        if not question_id or not name or not content:
+            return jsonify({"success": False, "message": "缺少必要欄位"})
+        
+        # 加載現有問題
+        global questions
+        questions = load_data_from_file(QUESTIONS_FILE, default_questions)
+        
+        # 查找問題並添加評論
+        for question in questions:
+            if question['id'] == int(question_id):
+                # 生成評論ID
+                comment_id = 1
+                if question['comments']:
+                    comment_id = max(c['id'] for c in question['comments']) + 1
+                
+                # 創建新評論
+                new_comment = {
+                    "id": comment_id,
+                    "name": name,
+                    "content": content,
+                    "date": date,
+                    "is_lecturer": is_lecturer
+                }
+                
+                # 添加到評論列表
+                question['comments'].append(new_comment)
+                
+                # 保存到文件
+                success = save_data_to_file(QUESTIONS_FILE, questions)
+                if not success:
+                    return jsonify({"success": False, "message": "保存評論時發生錯誤"})
+                
+                return jsonify({"success": True, "comment": new_comment})
+        
+        return jsonify({"success": False, "message": "找不到指定的問題"})
+    except Exception as e:
+        app.logger.error(f"提交評論時發生錯誤: {str(e)}")
+        return jsonify({"success": False, "message": f"提交評論時發生錯誤: {str(e)}"})
+
+@app.route('/api/mark-helpful', methods=['POST'])
+def mark_helpful():
+    try:
+        data = request.json
+        question_id = data.get('question_id')
+        
+        # 驗證必要欄位
+        if not question_id:
+            return jsonify({"success": False, "message": "缺少必要欄位"})
+        
+        # 加載現有問題
+        global questions
+        questions = load_data_from_file(QUESTIONS_FILE, default_questions)
+        
+        # 查找問題並增加有幫助計數
+        for question in questions:
+            if question['id'] == int(question_id):
+                # 增加計數
+                question['helpful_count'] = question.get('helpful_count', 0) + 1
+                
+                # 保存到文件
+                success = save_data_to_file(QUESTIONS_FILE, questions)
+                if not success:
+                    return jsonify({"success": False, "message": "保存數據時發生錯誤"})
+                
+                return jsonify({"success": True, "helpful_count": question['helpful_count']})
+        
+        return jsonify({"success": False, "message": "找不到指定的問題"})
+    except Exception as e:
+        app.logger.error(f"標記有幫助時發生錯誤: {str(e)}")
+        return jsonify({"success": False, "message": f"標記有幫助時發生錯誤: {str(e)}"})
 
 # 下載簡報
 @app.route('/download_presentation/<int:presentation_id>')
@@ -1306,6 +1490,28 @@ def get_slide_image(presentation_id, page_number):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/api/get-question-comments', methods=['GET'])
+def get_question_comments():
+    try:
+        question_id = request.args.get('question_id')
+        
+        if not question_id:
+            return jsonify({"success": False, "message": "缺少問題ID"})
+        
+        # 加載現有問題
+        global questions
+        questions = load_data_from_file(QUESTIONS_FILE, default_questions)
+        
+        # 查找問題並獲取評論
+        for question in questions:
+            if question['id'] == int(question_id):
+                return jsonify({"success": True, "comments": question.get('comments', [])})
+        
+        return jsonify({"success": False, "message": "找不到指定的問題"})
+    except Exception as e:
+        app.logger.error(f"獲取問題評論時發生錯誤: {str(e)}")
+        return jsonify({"success": False, "message": f"獲取問題評論時發生錯誤: {str(e)}"})
+
 @app.before_request
 def load_lecturer_info():
     # 跳過靜態文件請求
@@ -1329,7 +1535,7 @@ def load_lecturer_info():
                         session['lecturer_title'] = config.get('lecturer_title')
                     if 'lecturer_email' in config:
                         session['lecturer_email'] = config.get('lecturer_email')
-                    print("已從配置文件載入講師資料")
+                        print("已從配置文件載入講師資料")
             except Exception as e:
                 print(f"載入講師資料時發生錯誤: {str(e)}")
 

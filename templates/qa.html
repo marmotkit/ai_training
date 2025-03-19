@@ -3,174 +3,104 @@
 {% block title %}問答區 - 課程互動平台{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container mt-4">
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-chat-dots me-2"></i>問答區
-                    </h5>
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="bi bi-question-circle me-2"></i>問答區</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#askQuestionModal">
+                    <i class="bi bi-plus-circle me-2"></i>提問
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" class="form-control" id="searchQuestion" placeholder="搜尋問題...">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex justify-content-end">
+                <div class="btn-group me-2">
+                    <button type="button" class="btn btn-outline-primary filter-btn active" data-filter="all">全部</button>
+                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="answered">已回答</button>
+                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="unanswered">未回答</button>
                 </div>
-                <div class="card-body">
-                    <p class="lead">
-                        在此提出您的問題，講師將會回覆並解答。其他同學也可以參與討論，共同學習。
-                    </p>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#askQuestionModal">
-                        <i class="bi bi-plus-circle me-2"></i>提出新問題
-                    </button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary sort-btn active" data-sort="newest">最新</button>
+                    <button type="button" class="btn btn-outline-secondary sort-btn" data-sort="popular">熱門</button>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div class="row">
-        <div class="col-lg-4 mb-4">
-            <div class="card sticky-lg-top" style="top: 20px; z-index: 1;">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-funnel me-2"></i>篩選問題
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="searchQuestion" class="form-label">搜尋問題</label>
-                        <input type="text" class="form-control" id="searchQuestion" placeholder="輸入關鍵字...">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">問題狀態</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="allQuestions" checked>
-                            <label class="form-check-label" for="allQuestions">
-                                全部問題
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="answeredQuestions">
-                            <label class="form-check-label" for="answeredQuestions">
-                                已回答的問題
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="unansweredQuestions">
-                            <label class="form-check-label" for="unansweredQuestions">
-                                未回答的問題
-                            </label>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">排序方式</label>
-                        <select class="form-select" id="sortQuestions">
-                            <option value="newest">最新提問</option>
-                            <option value="oldest">最早提問</option>
-                            <option value="popular">熱門問題</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-primary w-100" id="applyFilters">
-                        <i class="bi bi-check-circle me-2"></i>應用篩選
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-8">
+        <div class="col-12">
             <div id="questionsList">
                 {% for question in questions %}
-                <div class="card mb-4 question-card">
-                    <div class="card-header {% if question.answers|length > 0 %}bg-success text-white{% else %}bg-warning{% endif %}">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">{{ question.title }}</h5>
-                            <span class="badge {% if question.answers|length > 0 %}bg-light text-success{% else %}bg-light text-warning{% endif %}">
-                                {% if question.answers|length > 0 %}已回答 ({{ question.answers|length }}){% else %}等待回答{% endif %}
-                            </span>
+                <div class="card mb-3 question-card" 
+                     data-answered="{{ 'true' if question.answer else 'false' }}"
+                     data-helpful-count="{{ question.helpful_count }}"
+                     data-date="{{ question.date }}"
+                     data-id="{{ question.id }}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">{{ question.title }}</h5>
+                        <div>
+                            {% if question.answer %}
+                            <span class="badge bg-success me-2">已回答</span>
+                            {% else %}
+                            <span class="badge bg-warning me-2">待回答</span>
+                            {% endif %}
+                            {% if question.comments|length > 0 %}
+                            <span class="badge bg-info">{{ question.comments|length }} 則評論</span>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="d-flex mb-3">
-                            <div class="flex-shrink-0">
-                                <div class="avatar">
-                                    <span class="avatar-text">{{ question.name[:1] }}</span>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">{{ question.name }}</h6>
-                                <small class="text-muted">{{ question.date }}</small>
-                            </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <small class="text-muted">提問者: {{ question.name }}</small>
+                            <small class="text-muted">{{ question.date }}</small>
                         </div>
                         <p class="card-text">{{ question.content }}</p>
-                        
-                        {% if question.answers|length > 0 %}
-                        <hr>
-                        <h6 class="text-success mb-3">
-                            <i class="bi bi-check-circle me-2"></i>回答
-                        </h6>
-                        {% for answer in question.answers %}
-                        <div class="answer-item mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0">
-                                    <div class="avatar avatar-sm bg-primary">
-                                        <span class="avatar-text">{{ answer.name[:1] }}</span>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <div class="d-flex justify-content-between">
-                                        <h6 class="mb-0">{{ answer.name }}
-                                            {% if answer.is_lecturer %}
-                                            <span class="badge bg-primary ms-2">講師</span>
-                                            {% endif %}
-                                        </h6>
-                                        <small class="text-muted">{{ answer.date }}</small>
-                                    </div>
-                                    <p class="mb-0">{{ answer.content }}</p>
-                                </div>
+                        {% if question.answer %}
+                        <div class="alert alert-success mt-3">
+                            <h6 class="alert-heading">講師回答:</h6>
+                            <p>{{ question.answer }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">回答時間: {{ question.answer_date }}</small>
+                                <button class="btn btn-sm btn-outline-success mark-helpful-btn" data-question-id="{{ question.id }}">
+                                    <i class="bi bi-hand-thumbs-up me-1"></i>有幫助 ({{ question.helpful_count }})
+                                </button>
                             </div>
                         </div>
-                        {% endfor %}
                         {% endif %}
-                    </div>
-                    <div class="card-footer bg-light">
-                        <button class="btn btn-sm btn-outline-primary reply-btn" data-question-id="{{ question.id }}">
-                            <i class="bi bi-reply me-1"></i>回覆
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary ms-2">
-                            <i class="bi bi-hand-thumbs-up me-1"></i>有幫助 <span class="helpful-count">{{ question.helpful_count|default(0) }}</span>
-                        </button>
-                        {% if not question.answers|length > 0 %}
-                        <button class="btn btn-sm btn-outline-warning ms-2">
-                            <i class="bi bi-bell me-1"></i>追蹤問題
-                        </button>
-                        {% endif %}
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-outline-primary view-comments-btn" data-question-id="{{ question.id }}">
+                                <i class="bi bi-chat-dots me-1"></i>查看討論 ({{ question.comments|length }})
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary reply-btn" data-question-id="{{ question.id }}">
+                                <i class="bi bi-reply me-1"></i>回覆
+                            </button>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
-            
-            <!-- 分頁 -->
-            <nav aria-label="問題分頁" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一頁</a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">下一頁</a>
-                    </li>
-                </ul>
-            </nav>
         </div>
     </div>
 </div>
 
 <!-- 提問模態框 -->
-<div class="modal fade" id="askQuestionModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="askQuestionModal" tabindex="-1" aria-labelledby="askQuestionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="bi bi-question-circle me-2"></i>提出新問題
-                </h5>
+                <h5 class="modal-title" id="askQuestionModalLabel">提出問題</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -181,17 +111,20 @@
                     </div>
                     <div class="mb-3">
                         <label for="questionTitle" class="form-label">問題標題</label>
-                        <input type="text" class="form-control" id="questionTitle" 
-                               placeholder="簡短描述您的問題" required>
+                        <input type="text" class="form-control" id="questionTitle" required>
                     </div>
                     <div class="mb-3">
                         <label for="questionContent" class="form-label">問題內容</label>
-                        <textarea class="form-control" id="questionContent" rows="5" 
-                                 placeholder="請詳細描述您的問題，包括背景、具體困惑等..." required></textarea>
+                        <textarea class="form-control" id="questionContent" rows="5" required></textarea>
                     </div>
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="anonymousCheck">
-                        <label class="form-check-label" for="anonymousCheck">匿名提問</label>
+                    <div class="mb-3">
+                        <label for="relatedPresentation" class="form-label">相關簡報 (選填)</label>
+                        <select class="form-select" id="relatedPresentation">
+                            <option value="">無</option>
+                            {% for presentation in presentations %}
+                            <option value="{{ presentation.id }}">{{ presentation.title }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </form>
             </div>
@@ -202,19 +135,86 @@
         </div>
     </div>
 </div>
+
+<!-- 查看評論模態框 -->
+<div class="modal fade" id="viewCommentsModal" tabindex="-1" aria-labelledby="viewCommentsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="viewCommentsModalLabel">問題討論</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h5 id="commentQuestionTitle" class="fw-bold"></h5>
+                </div>
+                <div id="commentsContainer" class="mb-4">
+                    <!-- 評論將在這裡動態添加 -->
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="commentName" class="form-label">您的姓名</label>
+                            <input type="text" class="form-control" id="commentName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="commentContent" class="form-label">您的評論</label>
+                            <textarea class="form-control" id="commentContent" rows="3" required></textarea>
+                        </div>
+                        <input type="hidden" id="commentQuestionId">
+                        <button type="button" class="btn btn-primary" id="submitComment">提交評論</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 回覆問題模態框 -->
+<div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="replyModalLabel">回覆問題</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h5 id="replyQuestionTitle" class="fw-bold"></h5>
+                </div>
+                <div class="mb-3">
+                    <label for="replyName" class="form-label">您的姓名</label>
+                    <input type="text" class="form-control" id="replyName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="replyContent" class="form-label">您的回覆</label>
+                    <textarea class="form-control" id="replyContent" rows="5" required></textarea>
+                </div>
+                <input type="hidden" id="replyQuestionId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="submitReply">提交回覆</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 提交問題處理
+        // 提交問題
         document.getElementById('submitQuestion').addEventListener('click', function() {
             const name = document.getElementById('questionName').value;
             const title = document.getElementById('questionTitle').value;
             const content = document.getElementById('questionContent').value;
-            const anonymous = document.getElementById('anonymousCheck').checked;
+            const relatedTo = document.getElementById('relatedPresentation').value;
             
-            if (!name.trim() || !title.trim() || !content.trim()) {
+            if (!name || !title || !content) {
                 alert('請填寫所有必填欄位');
                 return;
             }
@@ -226,22 +226,28 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    name: anonymous ? '匿名用戶' : name,
+                    name: name,
                     title: title,
                     content: content,
+                    related_to: relatedTo ? parseInt(relatedTo) : null,
+                    date: new Date().toLocaleString('zh-TW', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }).replace(/\//g, '/')
                 }),
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('問題提交成功！講師將會盡快回覆。');
+                    alert('問題已提交！');
+                    // 關閉模態框
                     const modal = bootstrap.Modal.getInstance(document.getElementById('askQuestionModal'));
                     modal.hide();
                     
-                    // 重置表單
-                    document.getElementById('questionForm').reset();
-                    
-                    // 重新加載頁面以顯示新問題
+                    // 重新加載頁面
                     window.location.reload();
                 } else {
                     alert('提交失敗：' + data.message);
@@ -253,51 +259,332 @@
             });
         });
         
-        // 回覆按鈕事件處理
-        document.querySelectorAll('.reply-btn').forEach(button => {
+        // 查看評論
+        document.querySelectorAll('.view-comments-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const questionId = this.getAttribute('data-question-id');
-                alert('回覆功能尚未實現。問題ID：' + questionId);
-                // 在此實現回覆邏輯
+                const questionCard = this.closest('.question-card');
+                const questionTitle = questionCard.querySelector('.card-title').textContent;
+                
+                document.getElementById('commentQuestionTitle').textContent = questionTitle;
+                document.getElementById('commentQuestionId').value = questionId;
+                
+                // 載入評論
+                loadComments(questionId);
+                
+                // 打開模態框
+                const modal = new bootstrap.Modal(document.getElementById('viewCommentsModal'));
+                modal.show();
             });
         });
         
-        // 篩選應用
-        document.getElementById('applyFilters').addEventListener('click', function() {
-            const searchText = document.getElementById('searchQuestion').value.toLowerCase();
-            const showAll = document.getElementById('allQuestions').checked;
-            const showAnswered = document.getElementById('answeredQuestions').checked;
-            const showUnanswered = document.getElementById('unansweredQuestions').checked;
-            const sortBy = document.getElementById('sortQuestions').value;
-            
-            // 在此實現篩選邏輯
-            alert('篩選功能尚未實現。\n搜索：' + searchText + '\n排序：' + sortBy);
+        // 回覆問題
+        document.querySelectorAll('.reply-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question-id');
+                const questionCard = this.closest('.question-card');
+                const questionTitle = questionCard.querySelector('.card-title').textContent;
+                
+                document.getElementById('replyQuestionTitle').textContent = questionTitle;
+                document.getElementById('replyQuestionId').value = questionId;
+                
+                // 打開模態框
+                const modal = new bootstrap.Modal(document.getElementById('replyModal'));
+                modal.show();
+            });
         });
+        
+        // 提交評論
+        document.getElementById('submitComment').addEventListener('click', function() {
+            const questionId = document.getElementById('commentQuestionId').value;
+            const name = document.getElementById('commentName').value;
+            const content = document.getElementById('commentContent').value;
+            
+            if (!name || !content) {
+                alert('請填寫所有必填欄位');
+                return;
+            }
+            
+            // 發送API請求
+            fetch('/api/submit-comment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question_id: questionId,
+                    name: name,
+                    content: content,
+                    date: new Date().toLocaleString('zh-TW', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }).replace(/\//g, '/')
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('評論已提交！');
+                    document.getElementById('commentContent').value = '';
+                    
+                    // 重新載入評論
+                    loadComments(questionId);
+                } else {
+                    alert('提交失敗：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('提交過程中出現錯誤，請稍後再試。');
+            });
+        });
+        
+        // 提交回覆
+        document.getElementById('submitReply').addEventListener('click', function() {
+            const questionId = document.getElementById('replyQuestionId').value;
+            const name = document.getElementById('replyName').value;
+            const content = document.getElementById('replyContent').value;
+            
+            if (!name || !content) {
+                alert('請填寫所有必填欄位');
+                return;
+            }
+            
+            // 發送API請求
+            fetch('/api/submit-comment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question_id: questionId,
+                    name: name,
+                    content: content,
+                    date: new Date().toLocaleString('zh-TW', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }).replace(/\//g, '/')
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('回覆已提交！');
+                    
+                    // 關閉模態框
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('replyModal'));
+                    modal.hide();
+                    
+                    // 重新加載頁面
+                    window.location.reload();
+                } else {
+                    alert('提交失敗：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('提交過程中出現錯誤，請稍後再試。');
+            });
+        });
+        
+        // 標記有幫助
+        document.querySelectorAll('.mark-helpful-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question-id');
+                
+                // 發送API請求
+                fetch('/api/mark-helpful', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question_id: questionId
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 更新按鈕文本
+                        this.innerHTML = `<i class="bi bi-hand-thumbs-up me-1"></i>有幫助 (${data.helpful_count})`;
+                        
+                        // 更新問題卡片的數據屬性
+                        const questionCard = this.closest('.question-card');
+                        questionCard.setAttribute('data-helpful-count', data.helpful_count);
+                        
+                        // 如果當前排序是按熱門排序，則重新排序
+                        if (document.querySelector('.sort-btn[data-sort="popular"]').classList.contains('active')) {
+                            sortQuestions('popular');
+                        }
+                    } else {
+                        alert('操作失敗：' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('操作過程中出現錯誤，請稍後再試。');
+                });
+            });
+        });
+        
+        // 載入評論
+        function loadComments(questionId) {
+            fetch(`/api/get-question-comments?question_id=${questionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const commentsContainer = document.getElementById('commentsContainer');
+                        commentsContainer.innerHTML = '';
+                        
+                        if (data.comments && data.comments.length > 0) {
+                            data.comments.forEach(comment => {
+                                const commentElement = document.createElement('div');
+                                commentElement.className = 'card mb-2';
+                                commentElement.innerHTML = `
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="card-subtitle mb-2 ${comment.is_lecturer ? 'text-primary' : 'text-muted'}">
+                                                ${comment.name} ${comment.is_lecturer ? '<span class="badge bg-primary">講師</span>' : ''}
+                                            </h6>
+                                            <small class="text-muted">${comment.date}</small>
+                                        </div>
+                                        <p class="card-text">${comment.content}</p>
+                                    </div>
+                                `;
+                                commentsContainer.appendChild(commentElement);
+                            });
+                        } else {
+                            commentsContainer.innerHTML = '<p class="text-muted">暫無評論，成為第一個評論的人吧！</p>';
+                        }
+                    } else {
+                        console.error('載入評論失敗：', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+        
+        // 篩選問題
+        document.querySelectorAll('.filter-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // 移除所有篩選按鈕的活動狀態
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // 添加當前按鈕的活動狀態
+                this.classList.add('active');
+                
+                // 獲取篩選類型
+                const filterType = this.getAttribute('data-filter');
+                
+                // 篩選問題
+                filterQuestions(filterType);
+            });
+        });
+        
+        // 排序問題
+        document.querySelectorAll('.sort-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // 移除所有排序按鈕的活動狀態
+                document.querySelectorAll('.sort-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // 添加當前按鈕的活動狀態
+                this.classList.add('active');
+                
+                // 獲取排序類型
+                const sortType = this.getAttribute('data-sort');
+                
+                // 排序問題
+                sortQuestions(sortType);
+            });
+        });
+        
+        // 搜尋問題
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const searchText = document.getElementById('searchQuestion').value.toLowerCase();
+            searchQuestions(searchText);
+        });
+        
+        // 按下Enter鍵搜尋
+        document.getElementById('searchQuestion').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                const searchText = this.value.toLowerCase();
+                searchQuestions(searchText);
+            }
+        });
+        
+        // 篩選問題函數
+        function filterQuestions(filterType) {
+            const questionCards = document.querySelectorAll('.question-card');
+            
+            questionCards.forEach(card => {
+                const isAnswered = card.getAttribute('data-answered') === 'true';
+                
+                if (filterType === 'all' || 
+                    (filterType === 'answered' && isAnswered) || 
+                    (filterType === 'unanswered' && !isAnswered)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // 排序問題函數
+        function sortQuestions(sortType) {
+            const questionsList = document.getElementById('questionsList');
+            const questionCards = Array.from(document.querySelectorAll('.question-card'));
+            
+            if (sortType === 'newest') {
+                // 按日期排序（最新的在前）
+                questionCards.sort((a, b) => {
+                    const dateA = new Date(a.getAttribute('data-date').replace(/(\d{4})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2})/, '$1-$2-$3T$4:$5:00'));
+                    const dateB = new Date(b.getAttribute('data-date').replace(/(\d{4})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2})/, '$1-$2-$3T$4:$5:00'));
+                    return dateB - dateA;
+                });
+            } else if (sortType === 'popular') {
+                // 按有幫助計數排序（最多的在前）
+                questionCards.sort((a, b) => {
+                    const countA = parseInt(a.getAttribute('data-helpful-count')) || 0;
+                    const countB = parseInt(b.getAttribute('data-helpful-count')) || 0;
+                    return countB - countA;
+                });
+            }
+            
+            // 清空問題列表
+            questionsList.innerHTML = '';
+            
+            // 重新添加排序後的問題卡片
+            questionCards.forEach(card => {
+                questionsList.appendChild(card);
+            });
+        }
+        
+        // 搜尋問題函數
+        function searchQuestions(searchText) {
+            const questionCards = document.querySelectorAll('.question-card');
+            
+            questionCards.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const content = card.querySelector('.card-text').textContent.toLowerCase();
+                
+                if (title.includes(searchText) || content.includes(searchText)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
     });
 </script>
-
-<style>
-    .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #6c757d;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-    }
-    
-    .avatar-sm {
-        width: 30px;
-        height: 30px;
-        font-size: 0.8rem;
-    }
-    
-    .question-card:hover {
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-        transition: all 0.3s ease-in-out;
-    }
-</style>
-{% endblock %} 
+{% endblock %}
