@@ -1,0 +1,18 @@
+[
+    {
+        "id": 1,
+        "title": "生成式AI工具列表",
+        "description": "各種通用型生成式AI工具的列表",
+        "filename": "programming_exercises.pdf",
+        "path": "uploads/supplementary_1_programming_exercises.pdf",
+        "date": "2025/03/19"
+    },
+    {
+        "id": 3,
+        "title": "AI 專題製作指南",
+        "description": "AI專題製作的詳細指南",
+        "filename": "project_guide.pdf",
+        "path": "uploads/supplementary_3_project_guide.pdf",
+        "date": "2025/03/19"
+    }
+]

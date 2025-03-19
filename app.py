@@ -19,6 +19,8 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PRESENTATIONS_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'presentations.json')
 UPLOADS_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'uploads.json')
 QUESTIONS_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'questions.json')
+REFERENCES_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'references.json')
+SUPPLEMENTARY_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'supplementary.json')
 SLIDES_DIR = os.path.join(CURRENT_DIR, 'static', 'slides')
 UPLOAD_FOLDER = os.path.join(CURRENT_DIR, 'static', 'uploads')
 
@@ -224,76 +226,123 @@ def convert_ppt_to_images(ppt_path, presentation_id):
 default_presentations = [
     {
         "id": 1,
-        "title": "AI導論",
-        "filename": "AI_Introduction.pdf",
-        "pages": 30,
-        "date": "2023/04/10",
-        "size": "2.5 MB",
-        "type": "presentation"
+        "title": "課程介紹",
+        "description": "這是課程的介紹簡報",
+        "file_type": "pptx",
+        "path": "slides/presentation-1",
+        "original_file": "uploads/intro.pptx",
+        "total_pages": 5
     },
     {
         "id": 2,
-        "title": "機器學習基礎",
-        "filename": "ML_Basics.pdf",
-        "pages": 25,
-        "date": "2023/04/10",
-        "size": "1.8 MB",
-        "type": "presentation"
+        "title": "第一章：基礎概念",
+        "description": "介紹基礎概念和術語",
+        "file_type": "pdf",
+        "path": "uploads/chapter1.pdf",
+        "original_file": "uploads/chapter1.pdf",
+        "total_pages": 10
     },
     {
         "id": 3,
-        "title": "深度學習應用",
-        "filename": "DL_Applications.pdf",
-        "pages": 28,
-        "date": "2023/04/10",
-        "size": "2.2 MB",
-        "type": "presentation"
+        "title": "第二章：進階技巧",
+        "description": "探討更複雜的技術和方法",
+        "file_type": "pptx",
+        "path": "slides/presentation-3",
+        "original_file": "uploads/advanced.pptx",
+        "total_pages": 8
     }
 ]
 
 default_uploads = [
     {
         "id": 1,
-        "title": "機器學習算法比較",
-        "filename": "ML_Algorithm_Comparison.pdf",
-        "type": "document",
-        "date": "2023/04/15",
-        "size": "1.5 MB"
+        "title": "課程大綱",
+        "description": "本課程的詳細大綱和學習目標",
+        "file_type": "pdf",
+        "path": "uploads/syllabus.pdf"
     },
     {
         "id": 2,
-        "title": "神經網絡架構圖解",
-        "filename": "Neural_Network_Diagrams.pdf",
-        "type": "document",
-        "date": "2023/04/10",
-        "size": "3.2 MB"
+        "title": "實作範例",
+        "description": "課程中提到的實作範例程式碼",
+        "file_type": "zip",
+        "path": "uploads/examples.zip"
+    },
+    {
+        "id": 3,
+        "title": "課程教學影片",
+        "description": "課程的輔助教學影片",
+        "file_type": "video",
+        "path": "https://www.youtube.com/embed/dQw4w9WgXcQ"
     }
 ]
 
 default_questions = [
     {
         "id": 1,
-        "student_name": "陳小明",
-        "question": "請問深度學習和機器學習有什麼區別？",
-        "time": "2023/04/08 14:30",
-        "status": "已回答",
-        "answer": "機器學習是人工智能的一個分支，而深度學習是機器學習的一個子領域。主要區別在於深度學習使用多層神經網絡處理更複雜的模式。"
+        "question": "如何下載課程資料？",
+        "answer": "您可以在「資源」頁面找到所有可下載的課程資料。",
+        "timestamp": "2023-01-15 10:30:00"
     },
     {
         "id": 2,
-        "student_name": "林小華",
-        "question": "卷積神經網絡適合什麼類型的數據？",
-        "time": "2023/04/09 10:15",
-        "status": "待回答",
-        "answer": ""
+        "question": "考試範圍包含哪些內容？",
+        "answer": "考試範圍包含課程中所有的章節，特別是第一章和第二章的內容。",
+        "timestamp": "2023-01-16 14:45:00"
     },
     {
         "id": 3,
-        "student_name": "張小芳",
-        "question": "如何避免神經網絡過擬合？",
-        "time": "2023/04/10 09:45",
-        "status": "待回答",
-        "answer": ""
+        "question": "是否有課後輔導時間？",
+        "answer": "是的，每週三下午 2-4 點有課後輔導時間，地點在 A307 教室。",
+        "timestamp": "2023-01-17 09:15:00"
+    }
+]
+
+default_references = [
+    {
+        "id": 1,
+        "title": "程式設計導論",
+        "url": "https://example.com/intro-programming",
+        "date": "2023-01-01"
+    },
+    {
+        "id": 2,
+        "title": "資料結構與演算法",
+        "url": "https://example.com/data-structures",
+        "date": "2023-01-02"
+    },
+    {
+        "id": 3,
+        "title": "網頁開發基礎",
+        "url": "https://example.com/web-development",
+        "date": "2023-01-03"
+    }
+]
+
+default_supplementary = [
+    {
+        "id": 1,
+        "title": "程式設計練習題",
+        "description": "課程相關的程式設計練習題和解答",
+        "filename": "programming_exercises.pdf",
+        "path": "uploads/supplementary_1_programming_exercises.pdf",
+        "date": "2023-01-01"
+    },
+    {
+        "id": 2,
+        "title": "期中考試複習資料",
+        "description": "期中考試的複習重點和範例題目",
+        "filename": "midterm_review.pdf",
+        "path": "uploads/supplementary_2_midterm_review.pdf",
+        "date": "2023-01-02"
+    },
+    {
+        "id": 3,
+        "title": "專題製作指南",
+        "description": "期末專題製作的詳細指南和評分標準",
+        "filename": "project_guide.pdf",
+        "path": "uploads/supplementary_3_project_guide.pdf",
+        "date": "2023-01-03"
     }
 ]
 
@@ -301,6 +350,8 @@ default_questions = [
 presentations = load_data_from_file(PRESENTATIONS_FILE, default_presentations)
 uploads = load_data_from_file(UPLOADS_FILE, default_uploads)
 questions = load_data_from_file(QUESTIONS_FILE, default_questions)
+references = load_data_from_file(REFERENCES_FILE, default_references)
+supplementary = load_data_from_file(SUPPLEMENTARY_FILE, default_supplementary)
 
 # 允許的檔案類型
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -379,24 +430,24 @@ def presentation():
                                total_pages=0)
     
     # 確保頁碼在有效範圍內
-    total_pages = current_presentation.get('pages', 1)
+    total_pages = current_presentation.get('total_pages', 1)
     if page < 1:
         page = 1
     elif page > total_pages:
         page = total_pages
     
     # 檢查是否為 PowerPoint 文件，如果是，檢查是否已轉換為圖片
-    if current_presentation.get('filename') and (current_presentation['filename'].lower().endswith('.ppt') or current_presentation['filename'].lower().endswith('.pptx')):
+    if current_presentation.get('file_type') == 'pptx':
         # 檢查轉換後的圖片目錄是否存在
         slides_dir = os.path.join(app.static_folder, 'slides', f"presentation-{current_presentation['id']}")
         if not os.path.exists(slides_dir) or len(os.listdir(slides_dir)) == 0:
             # 如果不存在，執行轉換
-            ppt_path = os.path.join(app.static_folder, 'uploads', current_presentation['filename'])
+            ppt_path = os.path.join(app.static_folder, 'uploads', current_presentation['original_file'])
             if os.path.exists(ppt_path):
                 num_slides = convert_ppt_to_images(ppt_path, current_presentation['id'])
                 # 更新簡報頁數
                 if num_slides > 0:
-                    current_presentation['pages'] = num_slides
+                    current_presentation['total_pages'] = num_slides
                     # 保存更新後的數據
                     save_data_to_file(PRESENTATIONS_FILE, presentations)
                     total_pages = num_slides
@@ -420,7 +471,7 @@ def ai_demo():
 
 @app.route('/resources')
 def resources():
-    return render_template('resources.html', presentations=presentations, uploads=uploads)
+    return render_template('resources.html', presentations=presentations, uploads=uploads, references=references, supplementary=supplementary)
 
 @app.route('/qa')
 def qa():
@@ -496,12 +547,18 @@ def lecturer_logout():
 @app.route('/lecturer/dashboard')
 @login_required
 def lecturer_dashboard():
+    # 加載講師信息
+    lecturer_info = lecturer_accounts.get(session.get('lecturer_username'))
+    
+    # 加載教材數據
     return render_template('lecturer/dashboard.html', 
+                          lecturer=lecturer_info, 
                           presentations=presentations, 
-                          questions=questions,
-                          lecturer=lecturer_accounts.get(session.get('lecturer_username')))
+                          uploads=uploads,
+                          references=references,
+                          supplementary=supplementary,
+                          questions=questions)
 
-# 回答問題
 @app.route('/lecturer/answer-question', methods=['POST'])
 @login_required
 def answer_question():
@@ -873,42 +930,355 @@ def delete_material():
 @app.route('/lecturer/edit-material', methods=['POST'])
 @login_required
 def edit_material():
-    data = request.get_json()
-    material_id = data.get('id')
-    material_type = data.get('type', 'presentation')
-    new_title = data.get('title')
-    
-    if not material_id or not new_title:
-        return jsonify({"success": False, "message": "未提供教材ID或新標題"})
-    
     try:
-        material_id = int(material_id)
+        data = request.json
+        material_id = data.get('id')
+        material_type = data.get('type')
+        new_title = data.get('title')
         
-        # 根據類型選擇要操作的列表
-        target_list = presentations if material_type == 'presentation' else uploads
-        
-        # 尋找要編輯的教材
-        material = None
-        for item in target_list:
-            if item['id'] == material_id:
-                material = item
-                break
-        
-        if material is None:
-            return jsonify({"success": False, "message": "找不到指定的教材"})
-        
-        # 更新標題
-        material['title'] = new_title
+        if not material_id or not material_type or not new_title:
+            return jsonify({"success": False, "message": "缺少必要參數"})
         
         if material_type == 'presentation':
-            save_data_to_file(PRESENTATIONS_FILE, presentations)
-        else:
-            save_data_to_file(UPLOADS_FILE, uploads)
+            presentations = load_data_from_file(PRESENTATIONS_FILE, default_presentations)
+            
+            # 查找並更新教材
+            for presentation in presentations:
+                if str(presentation['id']) == str(material_id):
+                    presentation['title'] = new_title
+                    break
+            else:
+                return jsonify({"success": False, "message": "找不到指定的簡報"})
+            
+            # 保存更新後的數據
+            if save_data_to_file(PRESENTATIONS_FILE, presentations):
+                return jsonify({"success": True, "message": "簡報標題已更新"})
+            else:
+                return jsonify({"success": False, "message": "保存數據時發生錯誤"})
         
-        return jsonify({"success": True, "message": "教材標題已更新"})
+        elif material_type == 'upload':
+            uploads = load_data_from_file(UPLOADS_FILE, default_uploads)
+            
+            # 查找並更新教材
+            for upload in uploads:
+                if str(upload['id']) == str(material_id):
+                    upload['title'] = new_title
+                    break
+            else:
+                return jsonify({"success": False, "message": "找不到指定的上傳教材"})
+            
+            # 保存更新後的數據
+            if save_data_to_file(UPLOADS_FILE, uploads):
+                return jsonify({"success": True, "message": "上傳教材標題已更新"})
+            else:
+                return jsonify({"success": False, "message": "保存數據時發生錯誤"})
+        
+        else:
+            return jsonify({"success": False, "message": "不支持的教材類型"})
+    
     except Exception as e:
-        print(f"編輯教材時發生錯誤: {str(e)}")
         return jsonify({"success": False, "message": f"編輯教材時發生錯誤: {str(e)}"})
+
+# 添加參考文獻
+@app.route('/lecturer/add-reference', methods=['POST'])
+@login_required
+def add_reference():
+    try:
+        title = request.form.get('title')
+        url = request.form.get('url')
+        
+        if not title or not url:
+            return jsonify({"success": False, "message": "缺少必要參數"})
+        
+        # 加載現有參考文獻
+        global references
+        references = load_data_from_file(REFERENCES_FILE, default_references)
+        
+        # 生成新的參考文獻ID
+        new_id = 1
+        if references:
+            new_id = max(ref['id'] for ref in references) + 1
+        
+        # 創建新的參考文獻
+        new_reference = {
+            "id": new_id,
+            "title": title,
+            "url": url,
+            "date": datetime.now().strftime('%Y/%m/%d')
+        }
+        
+        # 添加到參考文獻列表
+        references.append(new_reference)
+        
+        # 保存更新後的數據
+        if save_data_to_file(REFERENCES_FILE, references):
+            return jsonify({"success": True, "message": "參考文獻已添加"})
+        else:
+            return jsonify({"success": False, "message": "保存數據時發生錯誤"})
+    
+    except Exception as e:
+        return jsonify({"success": False, "message": f"添加參考文獻時發生錯誤: {str(e)}"})
+
+# 編輯參考文獻
+@app.route('/lecturer/edit-reference', methods=['POST'])
+@login_required
+def edit_reference():
+    try:
+        print("收到編輯參考文獻請求")
+        data = request.json
+        print(f"請求數據: {data}")
+        reference_id = data.get('id')
+        new_title = data.get('title')
+        new_url = data.get('url')
+        
+        if not reference_id or not new_title or not new_url:
+            print(f"缺少必要參數: id={reference_id}, title={new_title}, url={new_url}")
+            return jsonify({"success": False, "message": "缺少必要參數"})
+        
+        # 加載現有參考文獻
+        global references
+        references = load_data_from_file(REFERENCES_FILE, default_references)
+        print(f"當前參考文獻: {references}")
+        
+        # 查找並更新參考文獻
+        for reference in references:
+            if str(reference['id']) == str(reference_id):
+                print(f"找到參考文獻: {reference}")
+                reference['title'] = new_title
+                reference['url'] = new_url
+                reference['date'] = datetime.now().strftime('%Y/%m/%d')
+                print(f"更新後的參考文獻: {reference}")
+                break
+        else:
+            print(f"找不到指定的參考文獻 ID: {reference_id}")
+            return jsonify({"success": False, "message": "找不到指定的參考文獻"})
+        
+        # 保存更新後的數據
+        success = save_data_to_file(REFERENCES_FILE, references)
+        print(f"保存結果: {success}")
+        if success:
+            return jsonify({"success": True, "message": "參考文獻已更新"})
+        else:
+            return jsonify({"success": False, "message": "保存數據時發生錯誤"})
+    
+    except Exception as e:
+        app.logger.error(f"編輯參考文獻時發生錯誤: {str(e)}")
+        print(f"編輯參考文獻時發生錯誤: {str(e)}")
+        return jsonify({"success": False, "message": f"編輯參考文獻時發生錯誤: {str(e)}"})
+
+# 刪除參考文獻
+@app.route('/lecturer/delete-reference', methods=['POST'])
+@login_required
+def delete_reference():
+    try:
+        print("收到刪除參考文獻請求")
+        data = request.json
+        print(f"請求數據: {data}")
+        reference_id = data.get('id')
+        
+        if not reference_id:
+            print(f"缺少必要參數: id={reference_id}")
+            return jsonify({"success": False, "message": "缺少必要參數"})
+        
+        # 加載現有參考文獻
+        global references
+        references = load_data_from_file(REFERENCES_FILE, default_references)
+        print(f"當前參考文獻: {references}")
+        
+        # 查找並刪除參考文獻
+        for i, reference in enumerate(references):
+            if str(reference['id']) == str(reference_id):
+                print(f"找到參考文獻: {reference}")
+                del references[i]
+                print(f"刪除後的參考文獻列表: {references}")
+                break
+        else:
+            print(f"找不到指定的參考文獻 ID: {reference_id}")
+            return jsonify({"success": False, "message": "找不到指定的參考文獻"})
+        
+        # 保存更新後的數據
+        success = save_data_to_file(REFERENCES_FILE, references)
+        print(f"保存結果: {success}")
+        if success:
+            return jsonify({"success": True, "message": "參考文獻已刪除"})
+        else:
+            return jsonify({"success": False, "message": "保存數據時發生錯誤"})
+    
+    except Exception as e:
+        app.logger.error(f"刪除參考文獻時發生錯誤: {str(e)}")
+        print(f"刪除參考文獻時發生錯誤: {str(e)}")
+        return jsonify({"success": False, "message": f"刪除參考文獻時發生錯誤: {str(e)}"})
+
+# 添加補充資料
+@app.route('/lecturer/add-supplementary', methods=['POST'])
+@login_required
+def add_supplementary():
+    try:
+        title = request.form.get('title')
+        description = request.form.get('description')
+        file = request.files.get('file')
+        
+        if not title or not description or not file:
+            return jsonify({"success": False, "message": "缺少必要參數"})
+        
+        # 確保文件名安全
+        filename = secure_filename(file.filename)
+        
+        # 檢查文件類型
+        if not allowed_file(filename):
+            return jsonify({"success": False, "message": "不支持的文件類型"})
+        
+        # 加載現有補充資料
+        global supplementary
+        supplementary = load_data_from_file(SUPPLEMENTARY_FILE, default_supplementary)
+        
+        # 生成新的補充資料ID
+        new_id = 1
+        if supplementary:
+            new_id = max(material['id'] for material in supplementary) + 1
+        
+        # 保存文件
+        file_path = os.path.join(UPLOAD_FOLDER, f"supplementary_{new_id}_{filename}")
+        file.save(file_path)
+        
+        # 創建新的補充資料
+        new_supplementary = {
+            "id": new_id,
+            "title": title,
+            "description": description,
+            "filename": filename,
+            "path": f"uploads/supplementary_{new_id}_{filename}",
+            "date": datetime.now().strftime('%Y/%m/%d')
+        }
+        
+        # 添加到補充資料列表
+        supplementary.append(new_supplementary)
+        
+        # 保存更新後的數據
+        if save_data_to_file(SUPPLEMENTARY_FILE, supplementary):
+            return jsonify({"success": True, "message": "補充資料已添加"})
+        else:
+            return jsonify({"success": False, "message": "保存數據時發生錯誤"})
+    
+    except Exception as e:
+        return jsonify({"success": False, "message": f"添加補充資料時發生錯誤: {str(e)}"})
+
+# 編輯補充資料
+@app.route('/lecturer/edit-supplementary', methods=['POST'])
+@login_required
+def edit_supplementary():
+    try:
+        print("收到編輯補充資料請求")
+        supplementary_id = request.form.get('id')
+        new_title = request.form.get('title')
+        new_description = request.form.get('description')
+        file = request.files.get('file')
+        
+        print(f"請求數據: id={supplementary_id}, title={new_title}, description={new_description}, file={file}")
+        
+        if not supplementary_id or not new_title or not new_description:
+            print(f"缺少必要參數: id={supplementary_id}, title={new_title}, description={new_description}")
+            return jsonify({"success": False, "message": "缺少必要參數"})
+        
+        # 加載現有補充資料
+        global supplementary
+        supplementary = load_data_from_file(SUPPLEMENTARY_FILE, default_supplementary)
+        print(f"當前補充資料: {supplementary}")
+        
+        # 查找並更新補充資料
+        for material in supplementary:
+            if str(material['id']) == str(supplementary_id):
+                print(f"找到補充資料: {material}")
+                material['title'] = new_title
+                material['description'] = new_description
+                material['date'] = datetime.now().strftime('%Y/%m/%d')
+                
+                # 如果有新文件，則更新文件
+                if file and file.filename:
+                    print(f"有新文件: {file.filename}")
+                    # 確保文件名安全
+                    filename = secure_filename(file.filename)
+                    
+                    # 檢查文件類型
+                    if not allowed_file(filename):
+                        print(f"不支持的文件類型: {filename}")
+                        return jsonify({"success": False, "message": "不支持的文件類型"})
+                    
+                    # 保存文件
+                    file_path = os.path.join(UPLOAD_FOLDER, f"supplementary_{supplementary_id}_{filename}")
+                    print(f"保存文件到: {file_path}")
+                    file.save(file_path)
+                    
+                    # 更新文件信息
+                    material['filename'] = filename
+                    material['path'] = f"uploads/supplementary_{supplementary_id}_{filename}"
+                
+                print(f"更新後的補充資料: {material}")
+                break
+        else:
+            print(f"找不到指定的補充資料 ID: {supplementary_id}")
+            return jsonify({"success": False, "message": "找不到指定的補充資料"})
+        
+        # 保存更新後的數據
+        success = save_data_to_file(SUPPLEMENTARY_FILE, supplementary)
+        print(f"保存結果: {success}")
+        if success:
+            return jsonify({"success": True, "message": "補充資料已更新"})
+        else:
+            return jsonify({"success": False, "message": "保存數據時發生錯誤"})
+    
+    except Exception as e:
+        app.logger.error(f"編輯補充資料時發生錯誤: {str(e)}")
+        print(f"編輯補充資料時發生錯誤: {str(e)}")
+        return jsonify({"success": False, "message": f"編輯補充資料時發生錯誤: {str(e)}"})
+
+# 刪除補充資料
+@app.route('/lecturer/delete-supplementary', methods=['POST'])
+@login_required
+def delete_supplementary():
+    try:
+        print("收到刪除補充資料請求")
+        data = request.json
+        print(f"請求數據: {data}")
+        supplementary_id = data.get('id')
+        
+        if not supplementary_id:
+            print(f"缺少必要參數: id={supplementary_id}")
+            return jsonify({"success": False, "message": "缺少必要參數"})
+        
+        # 加載現有補充資料
+        global supplementary
+        supplementary = load_data_from_file(SUPPLEMENTARY_FILE, default_supplementary)
+        print(f"當前補充資料: {supplementary}")
+        
+        # 查找並刪除補充資料
+        for i, material in enumerate(supplementary):
+            if str(material['id']) == str(supplementary_id):
+                print(f"找到補充資料: {material}")
+                # 刪除文件
+                if material.get('path'):
+                    file_path = os.path.join(app.static_folder, material['path'])
+                    if os.path.exists(file_path):
+                        print(f"刪除文件: {file_path}")
+                        os.remove(file_path)
+                
+                del supplementary[i]
+                print(f"刪除後的補充資料列表: {supplementary}")
+                break
+        else:
+            print(f"找不到指定的補充資料 ID: {supplementary_id}")
+            return jsonify({"success": False, "message": "找不到指定的補充資料"})
+        
+        # 保存更新後的數據
+        success = save_data_to_file(SUPPLEMENTARY_FILE, supplementary)
+        print(f"保存結果: {success}")
+        if success:
+            return jsonify({"success": True, "message": "補充資料已刪除"})
+        else:
+            return jsonify({"success": False, "message": "保存數據時發生錯誤"})
+    
+    except Exception as e:
+        return jsonify({"success": False, "message": f"刪除補充資料時發生錯誤: {str(e)}"})
 
 @app.route('/get_slide_image/<presentation_id>/<page_number>')
 def get_slide_image(presentation_id, page_number):
@@ -921,7 +1291,7 @@ def get_slide_image(presentation_id, page_number):
         
         # 檢查頁碼是否有效
         page_number = int(page_number)
-        if page_number < 1 or page_number > presentation.pages:
+        if page_number < 1 or page_number > presentation.total_pages:
             return jsonify({'success': False, 'error': '頁碼超出範圍'})
         
         # 構建圖片URL
@@ -931,7 +1301,7 @@ def get_slide_image(presentation_id, page_number):
             'success': True, 
             'image_url': image_url,
             'current_page': page_number,
-            'total_pages': presentation.pages
+            'total_pages': presentation.total_pages
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
