@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}添加 AI 演示{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    .form-section {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .form-section h3 {
+        margin-bottom: 15px;
+        color: #343a40;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 8px;
+    }
+    
+    .required-field::after {
+        content: "*";
+        color: red;
+        margin-left: 4px;
+    }
+    
+    .preview-container {
+        margin-top: 15px;
+        padding: 15px;
+        border: 1px dashed #ced4da;
+        border-radius: 4px;
+        background-color: #fff;
+    }
+    
+    .video-preview {
+        max-width: 100%;
+        max-height: 300px;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('lecturer_dashboard') }}">講師儀表板</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('ai_demo') }}">AI 演示</a></li>
+            <li class="breadcrumb-item active" aria-current="page">添加 AI 演示</li>
+        </ol>
+    </nav>
+    
+    <h1 class="mb-4">添加 AI 演示</h1>
+    
+    <form method="post" enctype="multipart/form-data">
+        <div class="form-section">
+            <h3>基本信息</h3>
+            <div class="form-group">
+                <label for="title" class="required-field">演示標題</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description" class="required-field">演示描述</label>
+                <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                <small class="form-text text-muted">簡要描述此 AI 演示的目的和功能。</small>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3>演示鏈接</h3>
+            <div class="form-group">
+                <label for="demo_url">演示網頁鏈接</label>
+                <input type="url" class="form-control" id="demo_url" name="demo_url" placeholder="https://example.com/demo">
+                <small class="form-text text-muted">輸入可以訪問此演示的網頁鏈接。</small>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3>操作步驟</h3>
+            <div class="form-group">
+                <label for="steps" class="required-field">步驟說明</label>
+                <textarea class="form-control" id="steps" name="steps" rows="5" required placeholder="1. 第一步操作說明&#10;2. 第二步操作說明&#10;3. 第三步操作說明"></textarea>
+                <small class="form-text text-muted">每行輸入一個步驟，建議使用數字編號。</small>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3>工具方法</h3>
+            <div class="form-group">
+                <label for="tools" class="required-field">使用工具</label>
+                <input type="text" class="form-control" id="tools" name="tools" required placeholder="Python, TensorFlow, Pandas">
+                <small class="form-text text-muted">列出此演示使用的工具和技術，用逗號分隔。</small>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3>演示視頻</h3>
+            <div class="form-group">
+                <label for="video">上傳視頻</label>
+                <input type="file" class="form-control-file" id="video" name="video" accept="video/*">
+                <small class="form-text text-muted">支持的格式：MP4, WebM, Ogg 等。</small>
+            </div>
+            
+            <div class="preview-container">
+                <h5>視頻預覽</h5>
+                <video id="videoPreview" class="video-preview" controls></video>
+                <p id="noVideoMessage">尚未選擇視頻</p>
+            </div>
+        </div>
+        
+        <div class="form-group mt-4 mb-5">
+            <button type="submit" class="btn btn-primary">保存演示</button>
+            <a href="{{ url_for('ai_demo') }}" class="btn btn-secondary ml-2">取消</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    $(document).ready(function() {
+        // 視頻預覽功能
+        $('#video').change(function() {
+            const file = this.files[0];
+            if (file) {
+                const videoPreview = $('#videoPreview');
+                const noVideoMessage = $('#noVideoMessage');
+                
+                // 創建一個臨時 URL 來預覽視頻
+                const videoURL = URL.createObjectURL(file);
+                videoPreview.attr('src', videoURL);
+                videoPreview.show();
+                noVideoMessage.hide();
+                
+                // 當頁面卸載時釋放 URL
+                $(window).on('unload', function() {
+                    URL.revokeObjectURL(videoURL);
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

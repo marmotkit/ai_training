@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}AI 演示{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    /* 新的主題顏色 - 淡藍色主題 - 更明顯的顏色 */
+    :root {
+        --tech-gradient-start: #00c6ff;
+        --tech-gradient-end: #0072ff;
+        --tech-dark: #2c3e50;
+        --tech-light: #ecf0f1;
+        --tech-accent: #00c6ff;
+    }
+    
+    body {
+        background-color: #f0f8ff; /* 添加淡藍色背景 */
+    }
+    
+    .tech-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 198, 255, 0.15);
+        transition: transform 0.3s, box-shadow 0.3s;
+        overflow: hidden;
+        background: linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%);
+        border-top: 4px solid var(--tech-gradient-start);
+    }
+    
+    .tech-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 198, 255, 0.25);
+    }
+    
+    .tech-card .card-header {
+        background: linear-gradient(135deg, var(--tech-gradient-start) 0%, var(--tech-gradient-end) 100%);
+        padding: 1.2rem;
+        border: none;
+    }
+    
+    .tech-card .card-title {
+        color: #fff;
+        font-weight: 600;
+        margin-bottom: 0;
+        font-size: 1.4rem;
+    }
+    
+    .tech-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .tech-card .card-footer {
+        background: transparent;
+        border-top: 1px solid rgba(0, 198, 255, 0.1);
+        padding: 1.2rem 1.5rem;
+    }
+    
+    .tech-badge {
+        background: rgba(0, 198, 255, 0.1);
+        color: var(--tech-gradient-start);
+        border-radius: 20px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-block;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid rgba(0, 198, 255, 0.2);
+    }
+    
+    .btn-tech-primary {
+        background: linear-gradient(135deg, var(--tech-gradient-start) 0%, var(--tech-gradient-end) 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+    }
+    
+    .btn-tech-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 198, 255, 0.4);
+        color: white;
+    }
+    
+    .btn-tech-secondary {
+        background: transparent;
+        border: 1px solid var(--tech-gradient-start);
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        color: var(--tech-gradient-start);
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    
+    .btn-tech-secondary:hover {
+        background: rgba(0, 198, 255, 0.1);
+        color: var(--tech-gradient-start);
+    }
+    
+    .ai-demo-header {
+        background: linear-gradient(135deg, var(--tech-gradient-start) 0%, var(--tech-gradient-end) 100%);
+        color: white;
+        padding: 2rem 0;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 20px rgba(0, 198, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ai-demo-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1NiIgaGVpZ2h0PSIxMDAiPgo8cmVjdCB3aWR0aD0iNTYiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDMiPjwvcmVjdD4KPHBhdGggZD0iTTI4IDY2TDAgNTBMMCAxNkwyOCAwTDU2IDE2TDU2IDUwTDI4IDY2TDI4IDEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utb3BhY2l0eT0iMC4wMiIgc3Ryb2tlLXdpZHRoPSIyIj48L3BhdGg+CjxwYXRoIGQ9Ik0yOCAwTDI4IDY2TDAgNTBMMCA1MEwwIDE2TDAgMTZMMjggMCIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjAyIj48L3BhdGg+Cjwvc3ZnPg==');
+        opacity: 0.1;
+    }
+    
+    .ai-demo-title {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+    
+    .ai-demo-subtitle {
+        opacity: 0.8;
+        font-weight: 300;
+        position: relative;
+    }
+    
+    .tool-chips {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+    
+    /* 添加一些動畫效果 */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .tech-card:hover .card-title {
+        animation: pulse 1s infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="ai-demo-header text-center">
+        <h1 class="ai-demo-title">AI 技術演示中心</h1>
+        <p class="ai-demo-subtitle">探索最新的人工智能技術與應用實例</p>
+    </div>
+    
+    <div class="row">
+        {% for demo in ai_demos %}
+        <div class="col-md-6 mb-4">
+            <div class="card tech-card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">{{ demo.title }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ demo.description }}</p>
+                    <div class="tool-chips">
+                        {% for tool in demo.tools.split(',') %}
+                            {% if tool.strip() %}
+                            <span class="tech-badge">{{ tool.strip() }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('ai_demo_detail', demo_id=demo.id) }}" class="btn btn-tech-primary">
+                            <i class="bi bi-eye-fill me-1"></i>查看詳情
+                        </a>
+                        {% if 'lecturer_id' in session %}
+                        <a href="{{ url_for('edit_ai_demo', demo_id=demo.id) }}" class="btn btn-tech-secondary">
+                            <i class="bi bi-pencil-fill me-1"></i>編輯
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if 'lecturer_id' in session %}
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('add_ai_demo') }}" class="btn btn-tech-primary">
+            <i class="bi bi-plus-lg me-1"></i>添加新演示
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

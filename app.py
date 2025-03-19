@@ -21,13 +21,16 @@ UPLOADS_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'uploads.json')
 QUESTIONS_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'questions.json')
 REFERENCES_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'references.json')
 SUPPLEMENTARY_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'supplementary.json')
+AI_DEMOS_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'ai_demos.json')
 SLIDES_DIR = os.path.join(CURRENT_DIR, 'static', 'slides')
 UPLOAD_FOLDER = os.path.join(CURRENT_DIR, 'static', 'uploads')
+AI_DEMO_VIDEOS_FOLDER = os.path.join(CURRENT_DIR, 'static', 'ai_demo_videos')
 
 # 確保目錄存在
 os.makedirs(os.path.join(CURRENT_DIR, 'static', 'data'), exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(SLIDES_DIR, exist_ok=True)
+os.makedirs(AI_DEMO_VIDEOS_FOLDER, exist_ok=True)
 
 # 從文件加載數據
 def load_data_from_file(file_path, default_data=None):
@@ -384,12 +387,51 @@ default_supplementary = [
     }
 ]
 
+default_ai_demos = [
+    {
+        "id": 1,
+        "title": "自然語言處理演示",
+        "description": "展示如何使用自然語言處理技術進行文本分析和生成",
+        "demo_url": "https://example.com/nlp-demo",
+        "steps": [
+            "1. 輸入文本數據",
+            "2. 選擇分析方法",
+            "3. 查看分析結果",
+            "4. 嘗試不同的參數設置"
+        ],
+        "steps_url": "https://example.com/nlp-steps",
+        "tools": "Python, NLTK, spaCy, Transformers",
+        "video_url": "intro_to_nlp.mp4",
+        "created_at": "2025-03-19T12:00:00",
+        "updated_at": "2025-03-19T12:00:00"
+    },
+    {
+        "id": 2,
+        "title": "機器學習模型訓練演示",
+        "description": "展示如何訓練和評估機器學習模型",
+        "demo_url": "https://example.com/ml-demo",
+        "steps": [
+            "1. 準備訓練數據",
+            "2. 選擇模型類型",
+            "3. 設置訓練參數",
+            "4. 開始訓練過程",
+            "5. 評估模型性能"
+        ],
+        "steps_url": "https://example.com/ml-steps",
+        "tools": "Python, scikit-learn, TensorFlow, Pandas",
+        "video_url": "ml_training_basics.mp4",
+        "created_at": "2025-03-19T12:30:00",
+        "updated_at": "2025-03-19T12:30:00"
+    }
+]
+
 # 加載數據
 presentations = load_data_from_file(PRESENTATIONS_FILE, default_presentations)
 uploads = load_data_from_file(UPLOADS_FILE, default_uploads)
 questions = load_data_from_file(QUESTIONS_FILE, default_questions)
 references = load_data_from_file(REFERENCES_FILE, default_references)
 supplementary = load_data_from_file(SUPPLEMENTARY_FILE, default_supplementary)
+ai_demos = load_data_from_file(AI_DEMOS_FILE, default_ai_demos)
 
 # 允許的檔案類型
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -505,7 +547,15 @@ def presentation_with_id(presentation_id):
 
 @app.route('/ai-demo')
 def ai_demo():
-    return render_template('ai-demo.html', presentations=presentations)
+    return render_template('ai-demo.html', ai_demos=ai_demos)
+
+@app.route('/ai-demo/<int:demo_id>')
+def ai_demo_detail(demo_id):
+    demo = next((d for d in ai_demos if d['id'] == demo_id), None)
+    if not demo:
+        flash('找不到指定的 AI 演示', 'error')
+        return redirect(url_for('ai_demo'))
+    return render_template('ai-demo-detail.html', demo=demo)
 
 @app.route('/resources')
 def resources():
@@ -591,10 +641,11 @@ def lecturer_logout():
 @login_required
 def lecturer_dashboard():
     # 獲取最新的數據
-    global questions, presentations, uploads, references, supplementary
+    global questions, presentations, uploads, references, supplementary, ai_demos
     questions = load_data_from_file(QUESTIONS_FILE, default_questions)
     presentations = load_data_from_file(PRESENTATIONS_FILE, default_presentations)
     supplementary = load_data_from_file(SUPPLEMENTARY_FILE, default_supplementary)
+    ai_demos = load_data_from_file(AI_DEMOS_FILE, default_ai_demos)
     
     # 加載講師信息
     lecturer_info = lecturer_accounts.get(session.get('lecturer_username'))
@@ -610,10 +661,10 @@ def lecturer_dashboard():
                           references=references,
                           supplementary=supplementary,
                           questions=questions,
+                          ai_demos=ai_demos,
                           unanswered_questions_count=unanswered_questions_count)
 
 @app.route('/lecturer/answer-question', methods=['POST'])
-@login_required
 def lecturer_answer_question():
     try:
         data = request.get_json()
@@ -1538,6 +1589,144 @@ def load_lecturer_info():
                         print("已從配置文件載入講師資料")
             except Exception as e:
                 print(f"載入講師資料時發生錯誤: {str(e)}")
+
+@app.route('/lecturer/add-ai-demo', methods=['GET', 'POST'])
+@login_required
+def add_ai_demo():
+    if request.method == 'POST':
+        title = request.form.get('title', '')
+        description = request.form.get('description', '')
+        demo_url = request.form.get('demo_url', '')
+        steps = request.form.get('steps', '').split('\n')
+        steps_url = request.form.get('steps_url', '')
+        tools = request.form.get('tools', '')
+        
+        # 處理影片上傳
+        video_url = ''
+        if 'video' in request.files:
+            video_file = request.files['video']
+            if video_file and video_file.filename != '':
+                filename = secure_filename(video_file.filename)
+                timestamp = int(time.time())
+                video_url = f"{timestamp}_{filename}"
+                video_file.save(os.path.join(AI_DEMO_VIDEOS_FOLDER, video_url))
+        
+        # 生成新的 ID
+        new_id = max([d['id'] for d in ai_demos], default=0) + 1
+        
+        # 創建新的 AI 演示
+        new_demo = {
+            "id": new_id,
+            "title": title,
+            "description": description,
+            "demo_url": demo_url,
+            "steps": [step for step in steps if step.strip()],
+            "steps_url": steps_url,
+            "tools": tools,
+            "video_url": video_url,
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat()
+        }
+        
+        # 添加到列表並保存
+        ai_demos.append(new_demo)
+        save_data_to_file(AI_DEMOS_FILE, ai_demos)
+        
+        flash('AI 演示已成功添加', 'success')
+        return redirect(url_for('lecturer_dashboard'))
+    
+    return render_template('add-ai-demo.html')
+
+@app.route('/lecturer/edit-ai-demo/<int:demo_id>', methods=['GET', 'POST'])
+@login_required
+def edit_ai_demo(demo_id):
+    # 查找要編輯的 AI 演示
+    demo_index = -1
+    for i, demo in enumerate(ai_demos):
+        if demo['id'] == demo_id:
+            demo_index = i
+            break
+    
+    if demo_index == -1:
+        flash('找不到指定的 AI 演示', 'error')
+        return redirect(url_for('lecturer_dashboard'))
+    
+    if request.method == 'POST':
+        title = request.form.get('title', '')
+        description = request.form.get('description', '')
+        demo_url = request.form.get('demo_url', '')
+        steps = request.form.get('steps', '').split('\n')
+        steps_url = request.form.get('steps_url', '')
+        tools = request.form.get('tools', '')
+        
+        # 處理影片上傳
+        video_url = ai_demos[demo_index]['video_url']
+        if 'video' in request.files:
+            video_file = request.files['video']
+            if video_file and video_file.filename != '':
+                # 如果有舊影片，刪除它
+                if video_url and os.path.exists(os.path.join(AI_DEMO_VIDEOS_FOLDER, video_url)):
+                    try:
+                        os.remove(os.path.join(AI_DEMO_VIDEOS_FOLDER, video_url))
+                    except:
+                        pass
+                
+                # 保存新影片
+                filename = secure_filename(video_file.filename)
+                timestamp = int(time.time())
+                video_url = f"{timestamp}_{filename}"
+                video_file.save(os.path.join(AI_DEMO_VIDEOS_FOLDER, video_url))
+        
+        # 更新 AI 演示
+        ai_demos[demo_index].update({
+            "title": title,
+            "description": description,
+            "demo_url": demo_url,
+            "steps": [step for step in steps if step.strip()],
+            "steps_url": steps_url,
+            "tools": tools,
+            "video_url": video_url,
+            "updated_at": datetime.now().isoformat()
+        })
+        
+        # 保存更新
+        save_data_to_file(AI_DEMOS_FILE, ai_demos)
+        
+        flash('AI 演示已成功更新', 'success')
+        return redirect(url_for('lecturer_dashboard'))
+    
+    return render_template('edit-ai-demo.html', demo=ai_demos[demo_index])
+
+@app.route('/lecturer/delete-ai-demo', methods=['POST'])
+@login_required
+def delete_ai_demo():
+    demo_id = request.form.get('demo_id', type=int)
+    
+    # 查找要刪除的 AI 演示
+    demo_index = -1
+    for i, demo in enumerate(ai_demos):
+        if demo['id'] == demo_id:
+            demo_index = i
+            break
+    
+    if demo_index == -1:
+        return jsonify({"success": False, "message": "找不到指定的 AI 演示"})
+    
+    # 刪除相關的影片文件
+    video_url = ai_demos[demo_index]['video_url']
+    if video_url and os.path.exists(os.path.join(AI_DEMO_VIDEOS_FOLDER, video_url)):
+        try:
+            os.remove(os.path.join(AI_DEMO_VIDEOS_FOLDER, video_url))
+        except:
+            pass
+    
+    # 從列表中刪除
+    del ai_demos[demo_index]
+    
+    # 保存更新
+    save_data_to_file(AI_DEMOS_FILE, ai_demos)
+    
+    return jsonify({"success": True, "message": "AI 演示已成功刪除"})
 
 if __name__ == '__main__':
     # 確保資料夾存在

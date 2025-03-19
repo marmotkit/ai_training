@@ -1,0 +1,505 @@
+{% extends "base.html" %}
+
+{% block title %}{{ demo.title }}{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    /* 科技感主題顏色 - 淡藍色主題 - 更明顯的顏色 */
+    :root {
+        --tech-gradient-start: #00c6ff;
+        --tech-gradient-end: #0072ff;
+        --tech-dark: #2c3e50;
+        --tech-light: #ecf0f1;
+        --tech-accent: #00c6ff;
+        --tech-border: rgba(0, 198, 255, 0.3);
+        --tech-bg-light: #f0f8ff;
+    }
+    
+    /* 頁面背景 */
+    .tech-bg {
+        background-color: var(--tech-bg-light);
+        min-height: 100vh;
+    }
+    
+    /* 標題區域 */
+    .tech-header {
+        background: linear-gradient(135deg, var(--tech-gradient-start) 0%, var(--tech-gradient-end) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 198, 255, 0.2);
+    }
+    
+    .tech-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1NiIgaGVpZ2h0PSIxMDAiPgo8cmVjdCB3aWR0aD0iNTYiIGhlaWdodD0iMTAwIiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDMiPjwvcmVjdD4KPHBhdGggZD0iTTI4IDY2TDAgNTBMMCAxNkwyOCAwTDU2IDE2TDU2IDUwTDI4IDY2TDI4IDEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utb3BhY2l0eT0iMC4wMiIgc3Ryb2tlLXdpZHRoPSIyIj48L3BhdGg+CjxwYXRoIGQ9Ik0yOCAwTDI4IDY2TDAgNTBMMCA1MEwwIDE2TDAgMTZMMjggMCIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjAyIj48L3BhdGg+Cjwvc3ZnPg==');
+        opacity: 0.1;
+    }
+    
+    .tech-title {
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+    
+    .tech-subtitle {
+        opacity: 0.8;
+        font-weight: 300;
+        position: relative;
+    }
+    
+    .tech-date {
+        position: relative;
+        font-size: 0.9rem;
+        opacity: 0.7;
+        margin-top: 1rem;
+    }
+    
+    /* 麵包屑導航 */
+    .tech-breadcrumb {
+        background-color: transparent;
+        padding: 0.5rem 0;
+        margin-bottom: 1rem;
+    }
+    
+    .tech-breadcrumb .breadcrumb-item a {
+        color: var(--tech-gradient-start);
+        font-weight: 500;
+        text-decoration: none;
+    }
+    
+    .tech-breadcrumb .breadcrumb-item.active {
+        color: var(--tech-dark);
+    }
+    
+    /* 主內容區域 */
+    .tech-content-wrapper {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    @media (min-width: 992px) {
+        .tech-content-wrapper {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+    
+    /* 表格框架樣式 */
+    .tech-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0, 198, 255, 0.15);
+        margin-bottom: 2rem;
+        background: white;
+    }
+    
+    .tech-table th {
+        background: linear-gradient(135deg, var(--tech-gradient-start) 0%, var(--tech-gradient-end) 100%);
+        color: white;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .tech-table td {
+        padding: 1.2rem;
+        border-bottom: 1px solid var(--tech-border);
+        vertical-align: top;
+    }
+    
+    .tech-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .tech-table-icon {
+        width: 40px;
+        text-align: center;
+        color: var(--tech-accent);
+        font-size: 1.2rem;
+    }
+    
+    .tech-table-header {
+        font-weight: 600;
+        color: var(--tech-dark);
+        width: 150px;
+    }
+    
+    /* 步驟列表 */
+    .tech-steps {
+        list-style-type: none;
+        counter-reset: step-counter;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    
+    .tech-steps li {
+        position: relative;
+        padding: 0.8rem 0.8rem 0.8rem 2.5rem;
+        margin-bottom: 0.8rem;
+        background-color: rgba(236, 240, 241, 0.5);
+        border-radius: 8px;
+        counter-increment: step-counter;
+        transition: all 0.3s;
+    }
+    
+    .tech-steps li:last-child {
+        margin-bottom: 0;
+    }
+    
+    .tech-steps li:hover {
+        background-color: rgba(236, 240, 241, 0.8);
+        transform: translateX(5px);
+    }
+    
+    .tech-steps li::before {
+        content: counter(step-counter);
+        position: absolute;
+        left: 0.8rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        background: linear-gradient(135deg, var(--tech-gradient-start) 0%, var(--tech-gradient-end) 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+    
+    /* 工具標籤 */
+    .tech-badge {
+        background: rgba(0, 198, 255, 0.1);
+        color: var(--tech-gradient-start);
+        border-radius: 20px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-block;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid rgba(0, 198, 255, 0.2);
+    }
+    
+    /* 視頻容器 - 進一步增大尺寸 */
+    .tech-video-container {
+        position: relative;
+        padding-bottom: 80%; /* 更大的比例 */
+        height: 0;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 198, 255, 0.25);
+        margin-bottom: 0;
+        border: 3px solid rgba(0, 198, 255, 0.3); /* 添加邊框突出視頻 */
+    }
+    
+    .tech-video-container video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        border-radius: 8px;
+    }
+    
+    /* 全屏視頻模式 */
+    .tech-video-fullwidth {
+        margin-bottom: 2rem;
+    }
+    
+    /* 演示鏈接 */
+    .tech-demo-link {
+        display: inline-block;
+        padding: 0.8rem 1.5rem;
+        background: linear-gradient(135deg, var(--tech-gradient-start) 0%, var(--tech-gradient-end) 100%);
+        color: white;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.3);
+    }
+    
+    .tech-demo-link:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4);
+        color: white;
+    }
+    
+    /* 技術框架 */
+    .tech-frame {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0, 198, 255, 0.15);
+        margin-bottom: 2rem;
+        border-top: 4px solid var(--tech-accent);
+    }
+    
+    .tech-frame-title {
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: var(--tech-dark);
+        border-bottom: 1px solid rgba(0, 198, 255, 0.1);
+        background-color: rgba(0, 198, 255, 0.05);
+    }
+    
+    .tech-frame-content {
+        padding: 1.5rem;
+    }
+    
+    /* 添加一些動畫效果 */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .tech-frame:hover .tech-frame-title {
+        animation: pulse 1s infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 tech-bg">
+    <nav aria-label="breadcrumb" class="tech-breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('ai_demo') }}">AI 技術演示中心</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ demo.title }}</li>
+        </ol>
+    </nav>
+    
+    <div class="tech-header">
+        <h1 class="tech-title">{{ demo.title }}</h1>
+        <p class="tech-subtitle">{{ demo.description }}</p>
+        <p class="tech-date"><i class="bi bi-clock me-1"></i>最後更新: {{ demo.updated_at[:10] if demo.updated_at else '未知' }}</p>
+    </div>
+    
+    {% if demo.video_url %}
+    <!-- 視頻區塊 -->
+    <table class="tech-table">
+        <thead>
+            <tr>
+                <th colspan="3"><i class="bi bi-film me-2"></i>演示視頻</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="3" style="padding: 0;">
+                    <div class="tech-video-container">
+                        <video controls>
+                            <source src="{{ url_for('static', filename='ai_demo_videos/' + demo.video_url) }}" type="video/mp4">
+                            您的瀏覽器不支持視頻播放。
+                        </video>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+    
+    <div class="tech-content-wrapper">
+        <div class="tech-main-content">
+            <!-- 基本信息表格 -->
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th colspan="3"><i class="bi bi-info-circle me-2"></i>基本信息</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tech-table-icon"><i class="bi bi-tag-fill"></i></td>
+                        <td class="tech-table-header">演示名稱</td>
+                        <td>{{ demo.title }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tech-table-icon"><i class="bi bi-card-text"></i></td>
+                        <td class="tech-table-header">演示描述</td>
+                        <td>{{ demo.description }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tech-table-icon"><i class="bi bi-clock-history"></i></td>
+                        <td class="tech-table-header">更新時間</td>
+                        <td>{{ demo.updated_at[:10] if demo.updated_at else '未知' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            {% if demo.demo_url %}
+            <!-- 互動演示表格 -->
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th colspan="3"><i class="bi bi-globe me-2"></i>互動演示</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tech-table-icon"><i class="bi bi-link-45deg"></i></td>
+                        <td class="tech-table-header">演示鏈接</td>
+                        <td>
+                            <a href="{{ demo.demo_url }}" target="_blank" class="tech-demo-link">
+                                開始互動演示 <i class="bi bi-box-arrow-up-right ms-1"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endif %}
+            
+            <!-- 操作步驟表格 -->
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th colspan="3"><i class="bi bi-list-ol me-2"></i>操作步驟</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="3">
+                            <ol class="tech-steps">
+                                {% for step in demo.steps %}
+                                <li>{{ step }}</li>
+                                {% endfor %}
+                            </ol>
+                            {% if demo.steps_url %}
+                            <div class="mt-3">
+                                <a href="{{ demo.steps_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-link-45deg me-1"></i>查看詳細步驟指南
+                                </a>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="tech-sidebar">
+            <!-- 使用工具表格 -->
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th colspan="2"><i class="bi bi-tools me-2"></i>使用工具</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            <div class="tech-tools">
+                                {% for tool in demo.tools.split(',') %}
+                                    {% if tool.strip() %}
+                                    <span class="tech-badge">{{ tool.strip() }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- 技術資訊表格 -->
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th colspan="2"><i class="bi bi-info-circle me-2"></i>技術資訊</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill me-2 text-success"></i>適用於教學環境</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill me-2 text-success"></i>包含完整操作指南</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill me-2 text-success"></i>提供互動式體驗</li>
+                                <li><i class="bi bi-check-circle-fill me-2 text-success"></i>支持多種學習方式</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            {% if session.get('logged_in') %}
+            <!-- 管理操作表格 -->
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th colspan="2"><i class="bi bi-gear me-2"></i>管理操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('edit_ai_demo', demo_id=demo.id) }}" class="btn btn-primary">
+                                    <i class="bi bi-pencil me-1"></i>編輯
+                                </a>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="bi bi-trash me-1"></i>刪除
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if 'lecturer_id' in session %}
+    <div class="mt-4 mb-5 text-center">
+        <a href="{{ url_for('edit_ai_demo', demo_id=demo.id) }}" class="btn btn-tech-primary me-2">
+            <i class="bi bi-pencil-fill me-1"></i>編輯演示
+        </a>
+        <button type="button" class="btn btn-tech-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <i class="bi bi-trash-fill me-1"></i>刪除演示
+        </button>
+    </div>
+    
+    <!-- 刪除確認對話框 -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">確認刪除</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>您確定要刪除「{{ demo.title }}」演示嗎？</p>
+                    <p class="text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>此操作無法撤銷！</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <form action="{{ url_for('delete_ai_demo') }}" method="post">
+                        <input type="hidden" name="demo_id" value="{{ demo.id }}">
+                        <button type="submit" class="btn btn-danger">確認刪除</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -193,6 +193,98 @@
         </div>
     </div>
 
+    <!-- AI 演示管理區塊 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-robot me-2"></i>AI 演示管理
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-plus-circle display-1 text-success mb-3"></i>
+                                    <h5 class="card-title">添加新演示</h5>
+                                    <p class="card-text">創建新的 AI 演示主題、操作步驟和工具方法</p>
+                                    <a href="{{ url_for('add_ai_demo') }}" class="btn btn-success">
+                                        <i class="bi bi-plus-lg me-1"></i>新增演示
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">快速提示</h5>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                                            AI 演示可以包含操作步驟、工具方法和範例影片
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                                            您可以提供外部演示網頁的連結，方便學生實際操作
+                                        </li>
+                                        <li class="list-group-item">
+                                            <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                                            上傳的影片建議使用 MP4 格式，大小不超過 100MB
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI 演示列表 -->
+                    {% if ai_demos|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>標題</th>
+                                    <th>描述</th>
+                                    <th>工具</th>
+                                    <th>更新日期</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for demo in ai_demos %}
+                                <tr>
+                                    <td>{{ demo.title }}</td>
+                                    <td>{{ demo.description[:50] }}{% if demo.description|length > 50 %}...{% endif %}</td>
+                                    <td>{{ demo.tools }}</td>
+                                    <td>{{ demo.updated_at[:10] if demo.updated_at else '未知' }}</td>
+                                    <td>
+                                        <a href="{{ url_for('ai_demo_detail', demo_id=demo.id) }}" class="btn btn-sm btn-success me-1" title="查看">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_ai_demo', demo_id=demo.id) }}" class="btn btn-sm btn-primary me-1" title="編輯">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-danger" title="刪除" data-bs-toggle="modal" data-bs-target="#deleteAiDemoModal" data-id="{{ demo.id }}" data-title="{{ demo.title }}" onclick="deleteAiDemoBtn(this)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>尚無 AI 演示。點擊上方的「新增演示」按鈕創建您的第一個 AI 演示。
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -613,6 +705,29 @@
     </div>
 </div>
 
+<!-- 刪除 AI 演示確認模態框 -->
+<div class="modal fade" id="deleteAiDemoModal" tabindex="-1" aria-labelledby="deleteAiDemoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAiDemoModalLabel">確認刪除</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>您確定要刪除 AI 演示「<span id="deleteAiDemoTitle"></span>」嗎？</p>
+                <p class="text-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>此操作無法撤銷。
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteAiDemo">確認刪除</button>
+                <input type="hidden" id="deleteAiDemoId">
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- 查看問題模態框 -->
 <div class="modal fade" id="viewQuestionModal" tabindex="-1" aria-labelledby="viewQuestionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -777,6 +892,14 @@ function deleteMaterialBtn(button) {
     deleteMaterialModal.show();
 }
 
+function deleteAiDemoBtn(button) {
+    const demoId = button.getAttribute('data-id');
+    const demoTitle = button.getAttribute('data-title');
+    
+    document.getElementById('deleteAiDemoId').value = demoId;
+    document.getElementById('deleteAiDemoTitle').textContent = demoTitle;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // 初始化上傳表單
     const uploadForm = document.getElementById('uploadForm');
@@ -797,6 +920,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmEditReference = document.getElementById('confirmEditReference');
     const confirmDeleteSupplementary = document.getElementById('confirmDeleteSupplementary');
     const confirmEditSupplementary = document.getElementById('confirmEditSupplementary');
+    const confirmDeleteAiDemo = document.getElementById('confirmDeleteAiDemo');
     
     // 切換上傳類型
     if (materialTypeSelect) {
@@ -882,6 +1006,38 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
+    // 初始化確認刪除按鈕事件
+    document.getElementById('confirmDeleteAiDemo').addEventListener('click', function() {
+        const demoId = document.getElementById('deleteAiDemoId').value;
+        
+        fetch('/lecturer/delete-ai-demo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `demo_id=${demoId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                // 關閉模態框
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteAiDemoModal'));
+                modal.hide();
+                // 重新載入頁面
+                setTimeout(function() {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', '刪除過程中發生錯誤，請稍後再試。');
+        });
+    });
     
     // 顯示提示消息的函數
     function showAlert(type, message) {

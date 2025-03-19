@@ -89,7 +89,7 @@ body {
 }
 
 .menu-item.active {
-    background-color: #0d6efd;
+    background-color: #0057da;
     color: #ffffff;
     border: 2px solid #ffffff;
     box-shadow: 0 0 15px rgba(13, 110, 253, 0.7);
@@ -174,7 +174,7 @@ body {
         min-height: auto;
         position: relative;
         margin-bottom: 10px;
-        border-bottom: 3px solid #0d6efd;
+        border-bottom: 3px solid #0057da;
         border-right: none;
     }
     
@@ -299,7 +299,7 @@ body {
 
 /* 講師儀表板樣式 */
 .dashboard-header {
-    border-left: 5px solid #0d6efd;
+    border-left: 5px solid #0057da;
     background-image: linear-gradient(to right, rgba(13, 110, 253, 0.1), rgba(255, 255, 255, 0));
 }
 
@@ -350,7 +350,7 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 0.8rem;
-    background-color: #0d6efd;
+    background-color: #0057da;
     border: 2px solid #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
@@ -543,4 +543,150 @@ html, body {
     max-width: 100%;
     max-height: 70vh;
     object-fit: contain;
+}
+
+/* 表格框架樣式 */
+.tech-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(79, 172, 254, 0.15);
+    margin-bottom: 2rem;
+    background: white;
+}
+
+.tech-table th {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.tech-table td {
+    padding: 1.2rem;
+    border-bottom: 1px solid rgba(0, 114, 255, 0.3);
+    vertical-align: top;
+}
+
+.tech-table tr:last-child td {
+    border-bottom: none;
+}
+
+.tech-table-icon {
+    width: 40px;
+    text-align: center;
+    color: #0057da;
+    font-size: 1.2rem;
+}
+
+.tech-table-header {
+    font-weight: 600;
+    color: #2c3e50;
+    width: 150px;
+}
+
+/* 科技感主題顏色 */
+:root {
+    --tech-gradient-start: #4facfe;
+    --tech-gradient-end: #00f2fe;
+    --tech-dark: #2c3e50;
+    --tech-light: #ecf0f1;
+    --tech-accent: #0057da;
+    --tech-border: rgba(0, 114, 255, 0.3);
+    --tech-bg-light: #f0f8ff;
+}
+
+/* 主內容區域 */
+.tech-content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+@media (min-width: 992px) {
+    .tech-content-wrapper {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+/* 步驟列表 */
+.tech-steps {
+    list-style-type: none;
+    counter-reset: step-counter;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.tech-steps li {
+    position: relative;
+    padding: 0.8rem 0.8rem 0.8rem 2.5rem;
+    margin-bottom: 0.8rem;
+    background-color: rgba(236, 240, 241, 0.5);
+    border-radius: 8px;
+    counter-increment: step-counter;
+    transition: all 0.3s;
+}
+
+.tech-steps li:last-child {
+    margin-bottom: 0;
+}
+
+.tech-steps li:hover {
+    background-color: rgba(236, 240, 241, 0.8);
+    transform: translateX(5px);
+}
+
+.tech-steps li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* 技術標籤 */
+.tech-badge {
+    background: rgba(0, 114, 255, 0.1);
+    color: #0057da;
+    border-radius: 20px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-block;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(0, 114, 255, 0.3);
+}
+
+/* 按鈕樣式 */
+.btn-tech-primary {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border: none;
+    border-radius: 50px;
+    padding: 0.6rem 1.5rem;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+}
+
+.btn-tech-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 172, 254, 0.4);
+    color: white;
 }

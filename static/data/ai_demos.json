@@ -1,0 +1,37 @@
+[
+    {
+        "id": 1,
+        "title": "企業專屬產品手冊智能助理平台 (AI 知識庫 - RAG 應用)",
+        "description": "透過免費且輕量的 Ollama 平台，打造企業專屬的 ChatGPT AI 助理，能夠上傳公司內部的產品操作手冊，建構 Retrieval-Augmented Generation（RAG）知識庫。參與者可透過此平台，以自然語言提問的方式，快速查詢產品的操作方法、故障排除流程等資訊，體驗 AI 如何作為公司內部知識庫平台，大幅提高內部資訊查詢效率。",
+        "demo_url": "http://127.0.0.1:8000/",
+        "steps": [
+            "步驟一：安裝與部署 Ollama（15分鐘）提供 Ollama 安裝檔案與快速指南。啟動 Ollama 服務，並在本機環境中下載並部署小型的 ChatGPT-like 模型（例如 llama3 或 mistral 等輕量模型）。\r",
+            "🔸步驟二：準備公司產品操作手冊資料（10分鐘）提供企業產品手冊的範例文件（Word或PDF格式）。使用 Cursor 協助撰寫 Python 腳本（約20行內），透過 LlamaIndex 或 LangChain 將文件轉換為知識庫向量資料庫（Embedding向量化）。\r",
+            "🔸步驟三：建立簡易 RAG 查詢介面（25分鐘）使用 Cursor 編寫 Python 查詢腳本，從向量資料庫中進行文檔檢索，並將檢索結果作為提示（Prompt）輸入 Ollama 模型，獲得回答。\r",
+            "🔸步驟四：體驗查詢互動（30分鐘）參與者使用此簡易介面，輸入不同的問題，例如：「產品B的螢幕為什麼會無法開機？」「如何設定產品C的Wi-Fi連線？」體驗 RAG 模型根據公司產品手冊內容回答問題的準確性。\r",
+            "🔸步驟五：自由討論與經驗交流（40分鐘）參與者分享體驗，討論哪些公司內部手冊或文件適合以此方式整合至內部AI知識庫，探討此平台未來落地的可能性。\r"
+        ],
+        "tools": "Ollama（免費且本地化的大型語言模型部署平台，支持 ChatGPT-like 模型） Cursor（協助撰寫建立向量資料庫與RAG查詢邏輯的程式碼） LangChain 或 LlamaIndex（用於輔助建構 RAG 架構，快速建立文檔檢索功能）",
+        "video_url": "intro_to_nlp.mp4",
+        "created_at": "2025-03-19T12:00:00",
+        "updated_at": "2025-03-19T22:53:04.860699",
+        "steps_url": "http://localhost:8000/tutorial"
+    },
+    {
+        "id": 2,
+        "title": "機器學習模型訓練演示",
+        "description": "展示如何訓練和評估機器學習模型",
+        "demo_url": "https://example.com/ml-demo",
+        "steps": [
+            "1. 準備訓練數據",
+            "2. 選擇模型類型",
+            "3. 設置訓練參數",
+            "4. 開始訓練過程",
+            "5. 評估模型性能"
+        ],
+        "tools": "Python, scikit-learn, TensorFlow, Pandas",
+        "video_url": "ml_training_basics.mp4",
+        "created_at": "2025-03-19T12:30:00",
+        "updated_at": "2025-03-19T12:30:00"
+    }
+]
