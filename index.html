@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>課程互動平台</title>
+    <!-- PDF.js 庫，必須先加載 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script>
+        // PDF.js 必須設定 Worker 路徑
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    </script>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 圖標 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- 自定義樣式 -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 頂部導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="bi bi-mortarboard-fill me-2"></i>課程互動平台</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#helpModal">
+                            <i class="bi bi-question-circle me-1"></i>使用說明
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#lecturerLoginModal">
+                            <i class="bi bi-person-badge me-1"></i>講師登入
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 移動端專用標籤導航 - 僅在小屏幕顯示 -->
+    <div class="d-md-none mb-3 px-3 pt-3" id="mobile-tabs">
+        <ul class="nav nav-pills nav-justified" id="mobile-pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="mobile-pills-slides-tab" data-bs-toggle="pill" data-bs-target="#v-pills-slides" type="button" role="tab" aria-controls="v-pills-slides" aria-selected="true">
+                    <i class="bi bi-file-earmark-slides me-1"></i>簡報
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="mobile-pills-ai-tab" data-bs-toggle="pill" data-bs-target="#v-pills-ai" type="button" role="tab" aria-controls="v-pills-ai" aria-selected="false">
+                    <i class="bi bi-robot me-1"></i>AI演示
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="mobile-pills-resources-tab" data-bs-toggle="pill" data-bs-target="#v-pills-resources" type="button" role="tab" aria-controls="v-pills-resources" aria-selected="false">
+                    <i class="bi bi-journal-text me-1"></i>資源
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="mobile-pills-qa-tab" data-bs-toggle="pill" data-bs-target="#v-pills-qa" type="button" role="tab" aria-controls="v-pills-qa" aria-selected="false">
+                    <i class="bi bi-chat-dots me-1"></i>問答
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 左側邊欄 - 僅在中型螢幕及以上顯示 -->
+            <div class="col-md-3 d-none d-md-block sidebar bg-black">
+                <div class="lecturer-info text-center py-4">
+                    <div class="lecturer-photo mx-auto mb-3">
+                        <img src="images/lecturer-photo.jpg" alt="講師照片" class="img-fluid rounded-circle border border-light">
+                    </div>
+                    <h5 class="lecturer-name text-white">陳大明 教授</h5>
+                    <p class="lecturer-title text-light mb-0">人工智能與機器學習</p>
+                </div>
+                
+                <hr class="sidebar-divider">
+                
+                <div class="text-center mb-3">
+                    <div class="alert alert-info">
+                        <i class="bi bi-arrow-down-circle-fill me-1"></i> 
+                        <strong>導航菜單</strong>
+                    </div>
+                </div>
+                
+                <h4 class="text-center text-white mb-3">
+                    <span class="badge bg-warning text-dark p-2">
+                        <i class="bi bi-menu-button-wide me-1"></i>功能按鈕區
+                    </span>
+                </h4>
+                
+                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <a class="nav-link active" id="v-pills-slides-tab" data-bs-toggle="pill" data-bs-target="#v-pills-slides" type="button" role="tab" aria-controls="v-pills-slides" aria-selected="true">
+                        <i class="bi bi-file-earmark-slides-fill"></i>
+                        <span class="fw-bold">課程簡報</span>
+                    </a>
+                    <a class="nav-link" id="v-pills-ai-tab" data-bs-toggle="pill" data-bs-target="#v-pills-ai" type="button" role="tab" aria-controls="v-pills-ai" aria-selected="false">
+                        <i class="bi bi-robot"></i>
+                        <span class="fw-bold">AI演示</span>
+                    </a>
+                    <a class="nav-link" id="v-pills-resources-tab" data-bs-toggle="pill" data-bs-target="#v-pills-resources" type="button" role="tab" aria-controls="v-pills-resources" aria-selected="false">
+                        <i class="bi bi-journal-text"></i>
+                        <span class="fw-bold">課程資源</span>
+                    </a>
+                    <a class="nav-link" id="v-pills-qa-tab" data-bs-toggle="pill" data-bs-target="#v-pills-qa" type="button" role="tab" aria-controls="v-pills-qa" aria-selected="false">
+                        <i class="bi bi-chat-dots"></i>
+                        <span class="fw-bold">問答區</span>
+                    </a>
+                </div>
+                
+                <div class="text-center mt-4 mb-3">
+                    <i class="bi bi-arrow-up-circle-fill text-warning" style="font-size: 2rem;"></i>
+                </div>
+                
+                <hr class="sidebar-divider">
+                
+                <div class="sidebar-footer text-center text-white-50 py-3">
+                    <small>&copy; 2023 課程互動平台</small>
+                </div>
+            </div>
+            
+            <!-- 主內容區 -->
+            <div class="col-md-9 col-12 px-md-5 py-4 main-content">
+                <div class="tab-content" id="v-pills-tabContent">
+                    <!-- 課程簡報標籤內容 -->
+                    <div class="tab-pane fade show active" id="v-pills-slides" role="tabpanel" aria-labelledby="v-pills-slides-tab">
+                        <h2 class="mb-4"><i class="bi bi-file-earmark-slides me-2"></i>課程簡報</h2>
+                        
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="row align-items-center mb-3">
+                                    <div class="col-md-6 mb-3 mb-md-0">
+                                        <label for="presentation-selector" class="form-label">選擇簡報：</label>
+                                        <select class="form-select" id="presentation-selector">
+                                            <option value="presentation1.pdf">簡報一：AI導論</option>
+                                            <option value="presentation2.pdf">簡報二：機器學習基礎</option>
+                                            <option value="presentation3.pdf">簡報三：深度學習應用</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 text-md-end">
+                                        <span class="me-2">頁數：</span>
+                                        <span id="slide-number" class="badge bg-primary">1 / 30</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="presentation-viewer-container mb-4">
+                            <canvas id="pdf-canvas"></canvas>
+                        </div>
+                        
+                        <div class="presentation-controls text-center">
+                            <button class="btn btn-outline-primary me-2" id="prev-slide">
+                                <i class="bi bi-arrow-left-circle me-1"></i>上一頁
+                            </button>
+                            <button class="btn btn-outline-primary" id="next-slide">
+                                下一頁<i class="bi bi-arrow-right-circle ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- AI演示標籤內容 -->
+                    <div class="tab-pane fade" id="v-pills-ai" role="tabpanel" aria-labelledby="v-pills-ai-tab">
+                        <h2 class="mb-4"><i class="bi bi-robot me-2"></i>AI演示</h2>
+                        
+                        <div class="row">
+                            <!-- 文字生成 -->
+                            <div class="col-lg-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="card-title mb-0">
+                                            <i class="bi bi-chat-square-text me-2"></i>AI文字生成
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="text-input" class="form-label">輸入提示詞：</label>
+                                            <textarea class="form-control mb-2" id="text-input" rows="3" placeholder="例如：請介紹什麼是人工智能"></textarea>
+                                            <button class="btn btn-primary w-100" id="generate-text">
+                                                <i class="bi bi-lightning me-1"></i>生成文字
+                                            </button>
+                                        </div>
+                                        <div class="mt-4">
+                                            <h6>生成結果：</h6>
+                                            <div class="border rounded p-3 bg-light" id="text-output" style="min-height: 150px;">
+                                                <p class="text-muted text-center">AI生成的文字將顯示在這裡</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 圖像生成 -->
+                            <div class="col-lg-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="card-title mb-0">
+                                            <i class="bi bi-image me-2"></i>AI圖像生成
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="image-input" class="form-label">輸入提示詞：</label>
+                                            <textarea class="form-control mb-2" id="image-input" rows="3" placeholder="例如：美麗的山景，日落時分"></textarea>
+                                            <button class="btn btn-primary w-100" id="generate-image">
+                                                <i class="bi bi-lightning me-1"></i>生成圖像
+                                            </button>
+                                        </div>
+                                        <div class="mt-4">
+                                            <h6>生成結果：</h6>
+                                            <div class="text-center p-3 bg-light border rounded" id="image-output" style="min-height: 150px;">
+                                                <p class="text-muted">AI生成的圖像將顯示在這裡</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 課程資源標籤內容 -->
+                    <div class="tab-pane fade" id="v-pills-resources" role="tabpanel" aria-labelledby="v-pills-resources-tab">
+                        <h2 class="mb-4"><i class="bi bi-journal-text me-2"></i>課程資源</h2>
+                        
+                        <!-- 課程簡報下載區 -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-file-earmark-pdf me-2"></i>課程簡報
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group">
+                                    <a href="downloads/presentation1.pdf" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" download>
+                                        <div>
+                                            <i class="bi bi-file-earmark-pdf text-danger me-2"></i>簡報一：AI導論
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">
+                                            <i class="bi bi-download"></i>
+                                        </span>
+                                    </a>
+                                    <a href="downloads/presentation2.pdf" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" download>
+                                        <div>
+                                            <i class="bi bi-file-earmark-pdf text-danger me-2"></i>簡報二：機器學習基礎
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">
+                                            <i class="bi bi-download"></i>
+                                        </span>
+                                    </a>
+                                    <a href="downloads/presentation3.pdf" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" download>
+                                        <div>
+                                            <i class="bi bi-file-earmark-pdf text-danger me-2"></i>簡報三：深度學習應用
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">
+                                            <i class="bi bi-download"></i>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 補充資料 -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-journal-bookmark me-2"></i>補充資料
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-file-earmark-text text-primary me-2"></i>人工智能發展歷史
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">
+                                            <i class="bi bi-download"></i>
+                                        </span>
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-file-earmark-text text-primary me-2"></i>深度學習模型比較
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">
+                                            <i class="bi bi-download"></i>
+                                        </span>
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-file-earmark-text text-primary me-2"></i>AI倫理與社會影響
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">
+                                            <i class="bi bi-download"></i>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 實用連結 -->
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-link-45deg me-2"></i>實用連結
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group">
+                                    <a href="https://www.tensorflow.org/" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-box-arrow-up-right text-success me-2"></i>TensorFlow 官網
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">
+                                            <i class="bi bi-link"></i>
+                                        </span>
+                                    </a>
+                                    <a href="https://pytorch.org/" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-box-arrow-up-right text-success me-2"></i>PyTorch 官網
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">
+                                            <i class="bi bi-link"></i>
+                                        </span>
+                                    </a>
+                                    <a href="https://openai.com/" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-box-arrow-up-right text-success me-2"></i>OpenAI 官網
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">
+                                            <i class="bi bi-link"></i>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 問答區標籤內容 -->
+                    <div class="tab-pane fade" id="v-pills-qa" role="tabpanel" aria-labelledby="v-pills-qa-tab">
+                        <h2 class="mb-4"><i class="bi bi-chat-dots me-2"></i>問答區</h2>
+                        
+                        <!-- 發問表單 -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-question-circle me-2"></i>提出問題
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="question-form">
+                                    <div class="mb-3">
+                                        <label for="student-name" class="form-label">您的姓名：</label>
+                                        <input type="text" class="form-control" id="student-name" placeholder="輸入您的姓名" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="question-content" class="form-label">問題內容：</label>
+                                        <textarea class="form-control" id="question-content" rows="3" placeholder="請輸入您的問題..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-send me-1"></i>提交問題
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- 問題列表 -->
+                        <h3 class="mb-3"><i class="bi bi-list-check me-2"></i>問題列表</h3>
+                        <div class="qa-list">
+                            <!-- 示例問題 1 -->
+                            <div class="card qa-card mb-3">
+                                <div class="card-header bg-light">
+                                    <strong>王小明</strong> 於 2023/04/10 14:30 提問
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">請問深度學習和機器學習的主要區別是什麼？在實際應用中，我們應該如何選擇適合的方法？</p>
+                                    <div class="answer-container mt-3 p-3 bg-light rounded">
+                                        <strong><i class="bi bi-person-circle me-1"></i>講師回覆：</strong>
+                                        <p>深度學習是機器學習的一個子集，主要區別在於深度學習使用多層神經網絡自動提取特徵，而傳統機器學習通常需要手動特徵工程。選擇方法時，考慮數據量、計算資源、問題複雜度和可解釋性需求。數據量大、問題複雜時傾向選擇深度學習；資源有限、需要高解釋性時可能選擇傳統機器學習方法。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 示例問題 2 -->
+                            <div class="card qa-card mb-3">
+                                <div class="card-header bg-light">
+                                    <strong>李小華</strong> 於 2023/04/09 16:45 提問
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">AI模型訓練時如何避免過擬合問題？有哪些常用的正則化技術？</p>
+                                    <div class="answer-container mt-3 p-3 bg-light rounded">
+                                        <strong><i class="bi bi-person-circle me-1"></i>講師回覆：</strong>
+                                        <p>避免過擬合的常用技術包括：1)數據增強：擴大訓練集多樣性；2)正則化：L1/L2正則化限制權重；3)Dropout：隨機關閉部分神經元；4)提前停止：在驗證誤差增加時停止訓練；5)批標準化：穩定訓練過程；6)交叉驗證：確保模型泛化能力。具體選擇取決於數據特點和模型架構。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 示例問題 3 -->
+                            <div class="card qa-card">
+                                <div class="card-header bg-light">
+                                    <strong>張小方</strong> 於 2023/04/08 10:15 提問
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">請問講師如何看待大型語言模型（如GPT）在教育領域的應用前景？有哪些潛在的問題需要注意？</p>
+                                    <div class="answer-container mt-3 p-3 bg-light rounded">
+                                        <strong><i class="bi bi-hourglass me-1"></i>等待講師回覆</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 使用說明模態框 -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="helpModalLabel">
+                        <i class="bi bi-info-circle me-2"></i>使用說明
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="accordion" id="helpAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    如何切換簡報內容？
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>在課程簡報標籤頁中，您可以通過下拉選單選擇不同的簡報檔案。選擇後，系統會自動加載所選的簡報。</p>
+                                    <p>使用簡報下方的"上一頁"和"下一頁"按鈕可以切換幻燈片頁面。您也可以使用鍵盤的左右方向鍵進行導航。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    如何使用AI演示功能？
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>AI演示標籤頁提供了文字生成和圖像生成兩個功能：</p>
+                                    <ul>
+                                        <li>文字生成：在輸入框中輸入提示詞，然後點擊"生成文字"按鈕，AI會根據您的提示生成相關文本內容。</li>
+                                        <li>圖像生成：在輸入框中描述您想要的圖像，點擊"生成圖像"按鈕，AI會嘗試創建符合描述的圖像。</li>
+                                    </ul>
+                                    <p>請注意，AI生成內容僅為演示目的，實際效果可能因模型和參數設定而異。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    如何下載課程資源？
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>在課程資源標籤頁中，您可以找到各種學習材料，包括：</p>
+                                    <ul>
+                                        <li>課程簡報PDF檔案</li>
+                                        <li>補充閱讀材料</li>
+                                        <li>實用網站連結</li>
+                                    </ul>
+                                    <p>點擊資源旁的下載圖標即可下載檔案，或點擊連結在新標籤頁中打開網站。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    如何在問答區提問？
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>在問答區標籤頁中，找到"提出問題"卡片，然後：</p>
+                                    <ol>
+                                        <li>輸入您的姓名</li>
+                                        <li>在問題內容框中詳細描述您的問題</li>
+                                        <li>點擊"提交問題"按鈕</li>
+                                    </ol>
+                                    <p>您的問題會添加到問題列表中，講師會在檢閱後回覆。您可以隨時回到問答區查看回覆狀態。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 講師登入模態框 -->
+    <div class="modal fade" id="lecturerLoginModal" tabindex="-1" aria-labelledby="lecturerLoginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="lecturerLoginModalLabel">
+                        <i class="bi bi-person-badge me-2"></i>講師登入
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="lecturer-username" class="form-label">用戶名：</label>
+                            <input type="text" class="form-control" id="lecturer-username" placeholder="輸入講師用戶名">
+                        </div>
+                        <div class="mb-3">
+                            <label for="lecturer-password" class="form-label">密碼：</label>
+                            <input type="password" class="form-control" id="lecturer-password" placeholder="輸入講師密碼">
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">登入</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 自定義 JavaScript -->
+    <script src="js/placeholder-images.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 

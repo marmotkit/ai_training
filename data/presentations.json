@@ -1,0 +1,47 @@
+[
+    {
+        "id": 5,
+        "title": "課程講義-1",
+        "filename": "0411_上課用簡報_V2.0.pptx",
+        "pages": 20,
+        "date": "2025/03/19",
+        "size": "15.4 MB",
+        "type": "presentation"
+    },
+    {
+        "id": 4,
+        "title": "課程講義",
+        "filename": "0411_上課用簡報_V2.0.pdf",
+        "pages": 33,
+        "date": "2025/03/19",
+        "size": "3.7 MB",
+        "type": "presentation"
+    },
+    {
+        "id": 1,
+        "title": "AI導論",
+        "filename": "AI_Introduction.pdf",
+        "pages": 30,
+        "date": "2023/04/10",
+        "size": "2.5 MB",
+        "type": "presentation"
+    },
+    {
+        "id": 2,
+        "title": "機器學習基礎",
+        "filename": "ML_Basics.pdf",
+        "pages": 25,
+        "date": "2023/04/10",
+        "size": "1.8 MB",
+        "type": "presentation"
+    },
+    {
+        "id": 3,
+        "title": "深度學習應用",
+        "filename": "DL_Applications.pdf",
+        "pages": 28,
+        "date": "2023/04/10",
+        "size": "2.2 MB",
+        "type": "presentation"
+    }
+]

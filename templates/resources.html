@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}課程資源 - 課程互動平台{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="bi bi-journal-text me-2"></i>課程資源
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">這裡提供了課程相關的補充資料、參考文獻和延伸閱讀。請點擊下方連結進行下載或查看。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>課程簡報
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for presentation in presentations %}
+                        <a href="{{ url_for('presentation', id=presentation.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if presentation.type == 'video' %}
+                                <i class="bi bi-film me-2 text-danger"></i>
+                                {% else %}
+                                <i class="bi bi-file-earmark-slides me-2 text-primary"></i>
+                                {% endif %}
+                                {{ presentation.title }}
+                                {% if presentation.date %}
+                                <small class="text-muted ms-2">({{ presentation.date }})</small>
+                                {% endif %}
+                            </div>
+                            <span class="badge {% if presentation.type == 'video' %}bg-danger{% else %}bg-primary{% endif %} rounded-pill">
+                                {% if presentation.type == 'video' %}
+                                    影片
+                                {% else %}
+                                    {{ presentation.pages }} 頁
+                                {% endif %}
+                            </span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-link-45deg me-2"></i>參考文獻
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="reference-list">
+                        <li class="mb-3">
+                            <a href="#" class="reference-link" target="_blank">
+                                <i class="bi bi-journal-text me-2 text-primary"></i>
+                                <span class="me-2">人工智能導論 - 臺灣大學開放式課程</span>
+                                <i class="bi bi-box-arrow-up-right text-secondary"></i>
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <a href="#" class="reference-link" target="_blank">
+                                <i class="bi bi-journal-text me-2 text-primary"></i>
+                                <span class="me-2">機器學習基礎與應用 - MIT OpenCourseWare</span>
+                                <i class="bi bi-box-arrow-up-right text-secondary"></i>
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <a href="#" class="reference-link" target="_blank">
+                                <i class="bi bi-journal-text me-2 text-primary"></i>
+                                <span class="me-2">深度學習實踐 - Stanford Online</span>
+                                <i class="bi bi-box-arrow-up-right text-secondary"></i>
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <a href="#" class="reference-link" target="_blank">
+                                <i class="bi bi-journal-text me-2 text-primary"></i>
+                                <span class="me-2">自然語言處理入門 - Coursera</span>
+                                <i class="bi bi-box-arrow-up-right text-secondary"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="reference-link" target="_blank">
+                                <i class="bi bi-journal-text me-2 text-primary"></i>
+                                <span class="me-2">計算機視覺現代方法 - edX</span>
+                                <i class="bi bi-box-arrow-up-right text-secondary"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-file-earmark-text me-2"></i>補充資料
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for file in uploads if file.type == 'document' %}
+                        <a href="{{ url_for('static', filename='uploads/' + file.filename) }}" class="list-group-item list-group-item-action" target="_blank">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <i class="bi bi-file-earmark-text me-2 text-primary"></i>
+                                    {{ file.title }}
+                                </h6>
+                                <small>{{ file.date }}</small>
+                            </div>
+                            <small class="text-muted">點擊下載</small>
+                        </a>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>目前沒有補充資料
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-tools me-2"></i>線上工具
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="https://colab.research.google.com/" class="list-group-item list-group-item-action" target="_blank">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <i class="bi bi-code-square me-2 text-primary"></i>
+                                    Google Colab
+                                </h6>
+                                <small><i class="bi bi-box-arrow-up-right"></i></small>
+                            </div>
+                            <small class="text-muted">免費使用的Jupyter筆記本環境，支持GPU加速。</small>
+                        </a>
+                        <a href="https://www.kaggle.com/" class="list-group-item list-group-item-action" target="_blank">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <i class="bi bi-code-square me-2 text-primary"></i>
+                                    Kaggle
+                                </h6>
+                                <small><i class="bi bi-box-arrow-up-right"></i></small>
+                            </div>
+                            <small class="text-muted">資料科學競賽平台，提供大量資料集和筆記本。</small>
+                        </a>
+                        <a href="https://huggingface.co/" class="list-group-item list-group-item-action" target="_blank">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <i class="bi bi-code-square me-2 text-primary"></i>
+                                    Hugging Face
+                                </h6>
+                                <small><i class="bi bi-box-arrow-up-right"></i></small>
+                            </div>
+                            <small class="text-muted">自然語言處理模型庫和工具。</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cloud-download me-2"></i>所有上傳檔案
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>檔案名稱</th>
+                                    <th>類型</th>
+                                    <th>上傳日期</th>
+                                    <th>大小</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for presentation in presentations %}
+                                <tr>
+                                    <td>{{ presentation.title }}</td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-file-earmark-slides me-1"></i>簡報
+                                        </span>
+                                    </td>
+                                    <td>2023/04/10</td>
+                                    <td>{{ presentation.pages }} 頁</td>
+                                    <td>
+                                        <a href="{{ url_for('presentation', id=presentation.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye"></i> 查看
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

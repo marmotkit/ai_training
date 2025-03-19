@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}AI演示 - 課程互動平台{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-robot me-2"></i>AI 演示平台
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead">
+                        本平台提供兩種AI演示功能，讓您體驗人工智能的實際應用。您可以生成文字或圖像，探索AI的創造力。
+                    </p>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>請注意，這些演示僅供學習參考，生成的內容可能會有不完美之處。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- 文字生成 -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-square-text me-2"></i>AI 文字生成
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="textGenerationForm">
+                        <div class="mb-3">
+                            <label for="textPrompt" class="form-label">請輸入提示詞</label>
+                            <textarea class="form-control" id="textPrompt" rows="3" placeholder="例如：解釋人工智能的基本概念..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="generateTextBtn">
+                            <i class="bi bi-lightning me-1"></i>生成文字
+                        </button>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <div class="card bg-light">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span>生成結果</span>
+                                <button class="btn btn-sm btn-outline-secondary copy-btn" data-target="generatedText">
+                                    <i class="bi bi-clipboard me-1"></i>複製
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="textLoading" class="d-none text-center py-3">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mt-2">AI正在思考中...</p>
+                                </div>
+                                <div id="generatedText" class="generated-content">
+                                    <p class="text-muted">生成的文字將顯示在這裡...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 圖像生成 -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-image me-2"></i>AI 圖像生成
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="imageGenerationForm">
+                        <div class="mb-3">
+                            <label for="imagePrompt" class="form-label">請描述您想要的圖像</label>
+                            <textarea class="form-control" id="imagePrompt" rows="3" placeholder="例如：一個科技城市的未來場景，霓虹燈和飛行車..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="generateImageBtn">
+                            <i class="bi bi-brush me-1"></i>生成圖像
+                        </button>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <div class="card bg-light">
+                            <div class="card-header">生成結果</div>
+                            <div class="card-body text-center">
+                                <div id="imageLoading" class="d-none py-3">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mt-2">正在創建圖像...</p>
+                                </div>
+                                <div id="generatedImageContainer">
+                                    <p class="text-muted mb-3">生成的圖像將顯示在這裡...</p>
+                                    <img id="generatedImage" class="img-fluid d-none rounded" alt="AI生成的圖像">
+                                </div>
+                                <button id="downloadImageBtn" class="btn btn-outline-primary mt-3 d-none">
+                                    <i class="bi bi-download me-1"></i>下載圖像
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 文字生成處理
+        document.getElementById('textGenerationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const prompt = document.getElementById('textPrompt').value;
+            if (!prompt.trim()) {
+                alert('請輸入提示詞');
+                return;
+            }
+            
+            // 顯示載入動畫
+            document.getElementById('textLoading').classList.remove('d-none');
+            document.getElementById('generatedText').innerHTML = '';
+            
+            // 發送API請求
+            fetch('/api/generate-text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ prompt: prompt }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 隱藏載入動畫
+                document.getElementById('textLoading').classList.add('d-none');
+                
+                // 顯示生成的文字
+                document.getElementById('generatedText').innerHTML = 
+                    `<p>${data.generated_text.replace(/\n/g, '<br>')}</p>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('textLoading').classList.add('d-none');
+                document.getElementById('generatedText').innerHTML = 
+                    '<p class="text-danger">生成過程中出現錯誤，請稍後再試。</p>';
+            });
+        });
+        
+        // 圖像生成處理
+        document.getElementById('imageGenerationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const prompt = document.getElementById('imagePrompt').value;
+            if (!prompt.trim()) {
+                alert('請描述您想要的圖像');
+                return;
+            }
+            
+            // 顯示載入動畫
+            document.getElementById('imageLoading').classList.remove('d-none');
+            document.getElementById('generatedImage').classList.add('d-none');
+            document.getElementById('downloadImageBtn').classList.add('d-none');
+            
+            // 發送API請求
+            fetch('/api/generate-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ prompt: prompt }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 隱藏載入動畫
+                document.getElementById('imageLoading').classList.add('d-none');
+                
+                // 顯示生成的圖像
+                const imageElement = document.getElementById('generatedImage');
+                imageElement.src = data.image_url;
+                imageElement.classList.remove('d-none');
+                
+                // 顯示下載按鈕
+                const downloadBtn = document.getElementById('downloadImageBtn');
+                downloadBtn.classList.remove('d-none');
+                downloadBtn.onclick = function() {
+                    const link = document.createElement('a');
+                    link.href = data.image_url;
+                    link.download = 'ai-generated-image.jpg';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('imageLoading').classList.add('d-none');
+                document.getElementById('generatedImageContainer').innerHTML = 
+                    '<p class="text-danger">生成過程中出現錯誤，請稍後再試。</p>';
+            });
+        });
+        
+        // 複製按鈕功能
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const content = document.getElementById(targetId).innerText;
+                
+                navigator.clipboard.writeText(content).then(() => {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="bi bi-check-lg me-1"></i>已複製';
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('複製失敗:', err);
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

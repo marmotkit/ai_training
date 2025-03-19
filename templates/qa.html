@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}問答區 - 課程互動平台{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-dots me-2"></i>問答區
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead">
+                        在此提出您的問題，講師將會回覆並解答。其他同學也可以參與討論，共同學習。
+                    </p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#askQuestionModal">
+                        <i class="bi bi-plus-circle me-2"></i>提出新問題
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card sticky-lg-top" style="top: 20px; z-index: 1;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-funnel me-2"></i>篩選問題
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="searchQuestion" class="form-label">搜尋問題</label>
+                        <input type="text" class="form-control" id="searchQuestion" placeholder="輸入關鍵字...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">問題狀態</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="allQuestions" checked>
+                            <label class="form-check-label" for="allQuestions">
+                                全部問題
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="answeredQuestions">
+                            <label class="form-check-label" for="answeredQuestions">
+                                已回答的問題
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="unansweredQuestions">
+                            <label class="form-check-label" for="unansweredQuestions">
+                                未回答的問題
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">排序方式</label>
+                        <select class="form-select" id="sortQuestions">
+                            <option value="newest">最新提問</option>
+                            <option value="oldest">最早提問</option>
+                            <option value="popular">熱門問題</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary w-100" id="applyFilters">
+                        <i class="bi bi-check-circle me-2"></i>應用篩選
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div id="questionsList">
+                {% for question in questions %}
+                <div class="card mb-4 question-card">
+                    <div class="card-header {% if question.answers|length > 0 %}bg-success text-white{% else %}bg-warning{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ question.title }}</h5>
+                            <span class="badge {% if question.answers|length > 0 %}bg-light text-success{% else %}bg-light text-warning{% endif %}">
+                                {% if question.answers|length > 0 %}已回答 ({{ question.answers|length }}){% else %}等待回答{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="avatar">
+                                    <span class="avatar-text">{{ question.name[:1] }}</span>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-0">{{ question.name }}</h6>
+                                <small class="text-muted">{{ question.date }}</small>
+                            </div>
+                        </div>
+                        <p class="card-text">{{ question.content }}</p>
+                        
+                        {% if question.answers|length > 0 %}
+                        <hr>
+                        <h6 class="text-success mb-3">
+                            <i class="bi bi-check-circle me-2"></i>回答
+                        </h6>
+                        {% for answer in question.answers %}
+                        <div class="answer-item mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <div class="avatar avatar-sm bg-primary">
+                                        <span class="avatar-text">{{ answer.name[:1] }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="mb-0">{{ answer.name }}
+                                            {% if answer.is_lecturer %}
+                                            <span class="badge bg-primary ms-2">講師</span>
+                                            {% endif %}
+                                        </h6>
+                                        <small class="text-muted">{{ answer.date }}</small>
+                                    </div>
+                                    <p class="mb-0">{{ answer.content }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-light">
+                        <button class="btn btn-sm btn-outline-primary reply-btn" data-question-id="{{ question.id }}">
+                            <i class="bi bi-reply me-1"></i>回覆
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary ms-2">
+                            <i class="bi bi-hand-thumbs-up me-1"></i>有幫助 <span class="helpful-count">{{ question.helpful_count|default(0) }}</span>
+                        </button>
+                        {% if not question.answers|length > 0 %}
+                        <button class="btn btn-sm btn-outline-warning ms-2">
+                            <i class="bi bi-bell me-1"></i>追蹤問題
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- 分頁 -->
+            <nav aria-label="問題分頁" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一頁</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">下一頁</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- 提問模態框 -->
+<div class="modal fade" id="askQuestionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-question-circle me-2"></i>提出新問題
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="questionForm">
+                    <div class="mb-3">
+                        <label for="questionName" class="form-label">您的姓名</label>
+                        <input type="text" class="form-control" id="questionName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="questionTitle" class="form-label">問題標題</label>
+                        <input type="text" class="form-control" id="questionTitle" 
+                               placeholder="簡短描述您的問題" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="questionContent" class="form-label">問題內容</label>
+                        <textarea class="form-control" id="questionContent" rows="5" 
+                                 placeholder="請詳細描述您的問題，包括背景、具體困惑等..." required></textarea>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="anonymousCheck">
+                        <label class="form-check-label" for="anonymousCheck">匿名提問</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="submitQuestion">提交問題</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 提交問題處理
+        document.getElementById('submitQuestion').addEventListener('click', function() {
+            const name = document.getElementById('questionName').value;
+            const title = document.getElementById('questionTitle').value;
+            const content = document.getElementById('questionContent').value;
+            const anonymous = document.getElementById('anonymousCheck').checked;
+            
+            if (!name.trim() || !title.trim() || !content.trim()) {
+                alert('請填寫所有必填欄位');
+                return;
+            }
+            
+            // 發送API請求
+            fetch('/api/submit-question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: anonymous ? '匿名用戶' : name,
+                    title: title,
+                    content: content,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('問題提交成功！講師將會盡快回覆。');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('askQuestionModal'));
+                    modal.hide();
+                    
+                    // 重置表單
+                    document.getElementById('questionForm').reset();
+                    
+                    // 重新加載頁面以顯示新問題
+                    window.location.reload();
+                } else {
+                    alert('提交失敗：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('提交過程中出現錯誤，請稍後再試。');
+            });
+        });
+        
+        // 回覆按鈕事件處理
+        document.querySelectorAll('.reply-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question-id');
+                alert('回覆功能尚未實現。問題ID：' + questionId);
+                // 在此實現回覆邏輯
+            });
+        });
+        
+        // 篩選應用
+        document.getElementById('applyFilters').addEventListener('click', function() {
+            const searchText = document.getElementById('searchQuestion').value.toLowerCase();
+            const showAll = document.getElementById('allQuestions').checked;
+            const showAnswered = document.getElementById('answeredQuestions').checked;
+            const showUnanswered = document.getElementById('unansweredQuestions').checked;
+            const sortBy = document.getElementById('sortQuestions').value;
+            
+            // 在此實現篩選邏輯
+            alert('篩選功能尚未實現。\n搜索：' + searchText + '\n排序：' + sortBy);
+        });
+    });
+</script>
+
+<style>
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #6c757d;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    
+    .avatar-sm {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+    
+    .question-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease-in-out;
+    }
+</style>
+{% endblock %} 

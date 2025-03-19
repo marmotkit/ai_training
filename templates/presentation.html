@@ -1,0 +1,503 @@
+{% extends "base.html" %}
+
+{% block title %}課程簡報 - 課程互動平台{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        {% if current_presentation.type == 'video' %}
+                        <i class="bi bi-film me-2"></i>影片教材
+                        {% else %}
+                        <i class="bi bi-file-earmark-slides me-2"></i>課程簡報
+                        {% endif %}
+                    </h5>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="presentationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-folder2-open me-1"></i>選擇簡報
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="presentationDropdown">
+                            {% for presentation in presentations %}
+                            <li>
+                                <a class="dropdown-item {% if presentation.id == current_presentation.id %}active{% endif %}" 
+                                   href="#" 
+                                   data-presentation-id="{{ presentation.id }}">
+                                    {{ presentation.title }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <!-- 全螢幕按鈕 -->
+                    <button class="btn btn-primary btn-sm ms-2" id="fullscreenBtn" title="全螢幕模式">
+                        <i class="bi bi-fullscreen"></i> 全螢幕
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="presentation-container">
+                        {% if current_presentation %}
+                            <div class="presentation-header d-flex justify-content-between align-items-center mb-3">
+                                <h3>{{ current_presentation.title }}</h3>
+                                <div class="d-flex align-items-center">
+                                    <span class="current-page me-2">{{ current_page }}/{{ current_presentation.pages }}</span>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-outline-primary btn-sm" id="prevPage">
+                                            <i class="bi bi-arrow-left"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" id="nextPage">
+                                            <i class="bi bi-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                    {% if current_presentation.filename and (current_presentation.filename.lower().endswith('.pptx') or current_presentation.filename.lower().endswith('.ppt')) %}
+                                        <a href="{{ url_for('download_presentation', presentation_id=current_presentation.id) }}" class="btn btn-primary btn-sm ms-2">
+                                            <i class="bi bi-download me-1"></i> 下載
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            {% if current_presentation.filename and current_presentation.filename.lower().endswith('.pdf') %}
+                                <!-- PDF 顯示 -->
+                                <div class="pdf-container">
+                                    <embed src="{{ url_for('static', filename='uploads/' + current_presentation.filename) }}" 
+                                           type="application/pdf" 
+                                           width="100%" 
+                                           height="600px" 
+                                           onerror="handlePdfError(this)" />
+                                </div>
+                            {% elif current_presentation.filename and (current_presentation.filename.lower().endswith('.pptx') or current_presentation.filename.lower().endswith('.ppt')) %}
+                                <!-- PowerPoint 顯示 -->
+                                <div class="ppt-slide-container text-center">
+                                    <img id="current-slide" class="img-fluid border rounded shadow-sm presentation-slide" 
+                                         src="{{ url_for('static', filename='slides/presentation-' + current_presentation.id|string + '/slide-' + current_page|string + '.png') }}" 
+                                         alt="Slide {{ current_page }}">
+                                    
+                                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                                        <button class="btn btn-outline-primary" id="prevPageBottom" {% if current_page <= 1 %}disabled{% endif %}>
+                                            <i class="bi bi-arrow-left"></i> 上一頁
+                                        </button>
+                                        <div class="input-group mx-2" style="width: 120px;">
+                                            <input type="number" class="form-control" id="page-input-bottom" min="1" max="{{ current_presentation.pages }}" value="{{ current_page }}">
+                                            <button class="btn btn-outline-primary" id="goToPageBottom">Go</button>
+                                        </div>
+                                        <button class="btn btn-outline-primary" id="nextPageBottom" {% if current_page >= current_presentation.pages %}disabled{% endif %}>
+                                            下一頁 <i class="bi bi-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <!-- 其他文件類型顯示 -->
+                                <div class="other-file-container">
+                                    <img src="{{ url_for('static', filename='uploads/' + current_presentation.filename) }}" 
+                                         alt="{{ current_presentation.title }}" 
+                                         class="img-fluid">
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i> 請從上方選擇一個簡報。
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-text me-2"></i>學生反饋
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="feedback-form">
+                        <form id="feedbackForm">
+                            <div class="mb-3">
+                                <label for="feedbackContent" class="form-label">您對這頁內容有任何疑問或想法嗎？</label>
+                                <textarea class="form-control" id="feedbackContent" rows="3" placeholder="請輸入您的問題或反饋..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-1"></i>提交反饋
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-text me-2"></i>課程筆記
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="notesContent" class="form-label">記錄您的筆記 (僅自己可見)</label>
+                        <textarea class="form-control" id="notesContent" rows="3" placeholder="在此記錄您的筆記..."></textarea>
+                    </div>
+                    <button id="saveNotes" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>保存筆記
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 全螢幕簡報模式 -->
+<div id="fullscreen-presentation" class="fullscreen-mode d-none">
+    <div class="fullscreen-header">
+        <h3 id="fullscreen-title" class="m-0 fs-5">{{ current_presentation.title if current_presentation else '' }}</h3>
+        <div class="fullscreen-controls">
+            <button id="prev-fullscreen" class="btn btn-sm btn-light" {% if current_page <= 1 %}disabled{% endif %}>
+                <i class="bi bi-arrow-left"></i>
+            </button>
+            <span id="fullscreen-page-indicator" class="mx-2">{{ current_page }}/{{ current_presentation.pages if current_presentation else 0 }}</span>
+            <button id="next-fullscreen" class="btn btn-sm btn-light" {% if current_page >= current_presentation.pages %}disabled{% endif %}>
+                <i class="bi bi-arrow-right"></i>
+            </button>
+            <button id="exit-fullscreen" class="btn btn-sm btn-danger ms-2">
+                <i class="bi bi-fullscreen-exit"></i> 退出
+            </button>
+        </div>
+    </div>
+    <div class="fullscreen-content">
+        <img id="fullscreen-slide" class="fullscreen-image" src="{{ url_for('static', filename='slides/presentation-' + current_presentation.id|string + '/slide-' + current_page|string + '.png') if current_presentation else '' }}" alt="全螢幕幻燈片" style="width: 100%; height: 100vh; object-fit: contain;">
+        <div class="keyboard-hint">
+            <i class="bi bi-keyboard"></i> 使用鍵盤方向鍵 ← → 或 空格鍵 進行導航
+        </div>
+    </div>
+</div>
+
+<div class="container mt-3" 
+     data-current-page="{{ current_page }}" 
+     data-total-pages="{{ current_presentation.pages if current_presentation else 0 }}" 
+     data-presentation-id="{% if current_presentation %}{{ current_presentation.id }}{% else %}0{% endif %}"
+     data-is-ppt="{% if current_presentation and current_presentation.filename and (current_presentation.filename.lower().endswith('.ppt') or current_presentation.filename.lower().endswith('.pptx')) %}true{% else %}false{% endif %}"
+     data-presentation-title="{{ current_presentation.title if current_presentation else '' }}">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 初始化變數 - 使用 window 對象來避免重複宣告
+    window.currentPage = window.currentPage || parseInt($('.container[data-current-page]').data('current-page')) || 1;
+    window.totalPages = window.totalPages || parseInt($('.container[data-current-page]').data('total-pages')) || 1;
+    window.presentationId = window.presentationId || parseInt($('.container[data-current-page]').data('presentation-id')) || 0;
+    window.isPpt = window.isPpt || $('.container[data-current-page]').data('is-ppt') === 'true';
+    window.presentationTitle = window.presentationTitle || $('.container[data-current-page]').data('presentation-title') || '';
+    
+    $(document).ready(function() {
+        console.log("頁面已加載，初始化簡報功能");
+        
+        // 從 data 屬性獲取數據
+        const container = $('.container[data-current-page]');
+        console.log(`當前頁: ${window.currentPage}, 總頁數: ${window.totalPages}, 簡報ID: ${window.presentationId}, 是否PPT: ${window.isPpt}`);
+        
+        // 初始化頁面
+        updatePageDisplay();
+        
+        // 載入已保存的筆記
+        loadNotes();
+        
+        // 選擇簡報下拉選單處理
+        $('.dropdown-menu .dropdown-item').on('click', function(e) {
+            e.preventDefault();
+            const id = $(this).data('presentation-id');
+            console.log(`選擇簡報: ${id}`);
+            if (id) {
+                selectPresentation(id);
+            }
+        });
+        
+        // 設置保存筆記按鈕事件
+        $('#saveNotes').on('click', function() {
+            saveNotes();
+        });
+        
+        // 設置頁面導航按鈕事件
+        $('#prevPage').on('click', function() {
+            console.log("點擊上一頁按鈕");
+            if (!$(this).prop('disabled')) {
+                navigateToPage(window.currentPage - 1);
+            }
+        });
+        
+        $('#nextPage').on('click', function() {
+            console.log("點擊下一頁按鈕");
+            if (!$(this).prop('disabled')) {
+                navigateToPage(window.currentPage + 1);
+            }
+        });
+        
+        // 設置頁面輸入框回車事件
+        $('#page-input').on('keypress', function(e) {
+            if (e.which === 13) {
+                goToPage();
+            }
+        });
+        
+        $('#goToPage').on('click', function() {
+            goToPage();
+        });
+        
+        // 設置 PowerPoint 底部導航按鈕事件
+        $('#prevPageBottom').on('click', function() {
+            console.log("點擊底部上一頁按鈕");
+            if (!$(this).prop('disabled')) {
+                navigateToPage(window.currentPage - 1);
+            }
+        });
+        
+        $('#nextPageBottom').on('click', function() {
+            console.log("點擊底部下一頁按鈕");
+            if (!$(this).prop('disabled')) {
+                navigateToPage(window.currentPage + 1);
+            }
+        });
+        
+        $('#page-input-bottom').on('keypress', function(e) {
+            if (e.which === 13) {
+                goToPageBottom();
+            }
+        });
+        
+        $('#goToPageBottom').on('click', function() {
+            goToPageBottom();
+        });
+        
+        // 全螢幕按鈕事件
+        $('#fullscreenBtn').on('click', function() {
+            enterFullscreenMode();
+        });
+        
+        // 退出全螢幕按鈕事件
+        $('#exit-fullscreen').on('click', function() {
+            exitFullscreenMode();
+        });
+        
+        // 全螢幕模式導航按鈕事件
+        $('#prev-fullscreen').on('click', function() {
+            console.log("點擊全螢幕上一頁按鈕");
+            if (!$(this).prop('disabled')) {
+                navigateToPage(window.currentPage - 1);
+            }
+        });
+        
+        $('#next-fullscreen').on('click', function() {
+            console.log("點擊全螢幕下一頁按鈕");
+            if (!$(this).prop('disabled')) {
+                navigateToPage(window.currentPage + 1);
+            }
+        });
+        
+        // 監聽鍵盤事件
+        $(document).keydown(function(e) {
+            if ($('#fullscreen-presentation').hasClass('d-none')) {
+                return; // 非全螢幕模式下不處理
+            }
+            
+            switch(e.which) {
+                case 37: // 左箭頭
+                    if (window.currentPage > 1) {
+                        navigateToPage(window.currentPage - 1);
+                    }
+                    break;
+                    
+                case 39: // 右箭頭
+                case 32: // 空格
+                    if (window.currentPage < window.totalPages) {
+                        navigateToPage(window.currentPage + 1);
+                    }
+                    break;
+                    
+                case 27: // ESC
+                    exitFullscreenMode();
+                    break;
+                    
+                default: return;
+            }
+            e.preventDefault();
+        });
+        
+        // 監聽全螢幕變化事件
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+    });
+    
+    // 載入筆記
+    function loadNotes() {
+        const savedNotes = localStorage.getItem(`notes_${window.presentationId}_${window.currentPage}`);
+        $('#notesContent').val(savedNotes || '');
+    }
+    
+    // 保存筆記
+    function saveNotes() {
+        const content = $('#notesContent').val();
+        if (content.trim()) {
+            localStorage.setItem(`notes_${window.presentationId}_${window.currentPage}`, content);
+            alert('筆記已保存！');
+        } else {
+            alert('請先輸入筆記內容。');
+        }
+    }
+    
+    // 選擇簡報
+    function selectPresentation(id) {
+        console.log(`選擇簡報，ID: ${id}`);
+        // 直接跳轉到新的簡報頁面，並重置頁碼為1
+        window.location.href = `/presentation?id=${id}&page=1`;
+    }
+    
+    // 更新頁面顯示
+    function updatePageDisplay() {
+        console.log(`更新頁面顯示: 當前頁 ${window.currentPage}/${window.totalPages}`);
+        
+        // 更新頁碼顯示
+        $('.current-page').text(`${window.currentPage}/${window.totalPages}`);
+        $('#fullscreen-page-indicator').text(`${window.currentPage}/${window.totalPages}`);
+        
+        // 如果是 PowerPoint，更新圖片源
+        if (window.isPpt === true || window.isPpt === 'true') {
+            const slideUrl = `/static/slides/presentation-${window.presentationId}/slide-${window.currentPage}.png`;
+            console.log(`更新幻燈片圖片: ${slideUrl}`);
+            $('#current-slide').attr('src', slideUrl);
+            $('#fullscreen-slide').attr('src', slideUrl);
+        }
+        
+        // 更新頁面輸入框
+        $('#page-input').val(window.currentPage);
+        $('#page-input-bottom').val(window.currentPage);
+        
+        // 更新導航按鈕狀態
+        $('#prevPage').prop('disabled', window.currentPage <= 1);
+        $('#nextPage').prop('disabled', window.currentPage >= window.totalPages);
+        $('#prevPageBottom').prop('disabled', window.currentPage <= 1);
+        $('#nextPageBottom').prop('disabled', window.currentPage >= window.totalPages);
+        $('#prev-fullscreen').prop('disabled', window.currentPage <= 1);
+        $('#next-fullscreen').prop('disabled', window.currentPage >= window.totalPages);
+        
+        // 載入當前頁的筆記
+        loadNotes();
+        
+        // 更新全螢幕模式的標題
+        $('#fullscreen-title').text(window.presentationTitle);
+    }
+    
+    // 導航到指定頁面
+    function navigateToPage(pageNumber) {
+        console.log(`導航到頁面: ${pageNumber}`);
+        
+        if (pageNumber < 1 || pageNumber > window.totalPages) {
+            console.log("頁面超出範圍");
+            return;
+        }
+        
+        // 更新當前頁碼
+        window.currentPage = parseInt(pageNumber);
+        
+        // 檢查是否處於全螢幕模式
+        const isFullscreen = !!document.fullscreenElement;
+        console.log(`是否全螢幕模式: ${isFullscreen}`);
+        
+        if (isFullscreen) {
+            console.log("全螢幕模式下更新頁面");
+            // 直接更新幻燈片圖片
+            const slideUrl = `/static/slides/presentation-${window.presentationId}/slide-${window.currentPage}.png`;
+            console.log(`更新幻燈片圖片: ${slideUrl}`);
+            
+            // 更新幻燈片圖片
+            $('#current-slide').attr('src', slideUrl);
+            $('#fullscreen-slide').attr('src', slideUrl);
+            
+            // 更新頁碼顯示和按鈕狀態
+            updatePageDisplay();
+            
+            // 更新 URL 但不重新加載頁面
+            history.pushState({}, '', `/presentation?id=${window.presentationId}&page=${window.currentPage}`);
+        } else {
+            // 非全螢幕模式下，使用傳統的頁面重新加載
+            window.location.href = `/presentation?id=${window.presentationId}&page=${window.currentPage}`;
+        }
+    }
+    
+    // 轉到指定頁面 (頂部輸入框)
+    function goToPage() {
+        const pageInput = $('#page-input');
+        const page = parseInt(pageInput.val());
+        if (!isNaN(page) && page >= 1 && page <= window.totalPages) {
+            navigateToPage(page);
+        } else {
+            // 恢復原始值
+            pageInput.val(window.currentPage);
+            alert('請輸入有效的頁碼');
+        }
+    }
+    
+    // 轉到指定頁面 (底部輸入框)
+    function goToPageBottom() {
+        const pageInput = $('#page-input-bottom');
+        const page = parseInt(pageInput.val());
+        if (!isNaN(page) && page >= 1 && page <= window.totalPages) {
+            navigateToPage(page);
+        } else {
+            // 恢復原始值
+            pageInput.val(window.currentPage);
+            alert('請輸入有效的頁碼');
+        }
+    }
+    
+    function enterFullscreenMode() {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullScreen) {
+            elem.webkitRequestFullScreen();
+        } else if (elem.msRequestFullScreen) {
+            elem.msRequestFullScreen();
+        }
+    }
+    
+    function exitFullscreenMode() {
+        const elem = document.documentElement;
+        if (elem.exitFullscreen) {
+            elem.exitFullscreen();
+        } else if (elem.mozCancelFullScreen) {
+            elem.mozCancelFullScreen();
+        } else if (elem.webkitCancelFullScreen) {
+            elem.webkitCancelFullScreen();
+        } else if (elem.msCancelFullScreen) {
+            elem.msCancelFullScreen();
+        }
+    }
+    
+    function handleFullscreenChange() {
+        if (document.fullscreenElement) {
+            console.log('進入全螢幕模式');
+            $('#fullscreen-presentation').removeClass('d-none');
+        } else {
+            console.log('退出全螢幕模式');
+            $('#fullscreen-presentation').addClass('d-none');
+        }
+    }
+    
+    // 處理 PDF 載入錯誤
+    function handlePdfError(element) {
+        console.log("PDF 載入錯誤");
+        $(element).parent().html("PDF 載入失敗，請檢查文件是否存在或網路連線是否正常。");
+    }
+</script>
+{% endblock %}

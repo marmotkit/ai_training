@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}課程互動平台{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 圖標 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font Awesome 圖標 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 自定義樣式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- 頂部導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><i class="bi bi-mortarboard-fill me-2"></i>課程互動平台</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#helpModal">
+                            <i class="bi bi-question-circle me-1"></i>使用說明
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% if 'lecturer_username' in session %}
+                        <a class="nav-link" href="/lecturer/dashboard">
+                            <i class="bi bi-speedometer2 me-1"></i>講師管理
+                            <span class="login-indicator logged-in">
+                                <i class="bi bi-circle-fill me-1"></i>已登入
+                            </span>
+                        </a>
+                        {% else %}
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#lecturerLoginModal">
+                            <i class="bi bi-person-badge me-1"></i>講師登入
+                            <span class="login-indicator logged-out">
+                                <i class="bi bi-circle me-1"></i>未登入
+                            </span>
+                        </a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 左側邊欄 - 顯示在所有設備上 -->
+            <div class="col-md-3 col-lg-2 col-sm-4 col-4 sidebar">
+                <div class="lecturer-info text-center py-4">
+                    <div class="lecturer-photo mx-auto mb-3">
+                        <div class="profile-img-container">
+                            <img src="{{ url_for('static', filename='images/lecturer-photo.jpg') }}?t={{ session.photo_timestamp or range(100000, 999999) | random }}" alt="講師照片">
+                        </div>
+                    </div>
+                    <h5 class="lecturer-name text-white">{{ session.lecturer_name if 'lecturer_name' in session else '陳大明' }} {{ session.lecturer_title if 'lecturer_title' in session else '教授' }}</h5>
+                    <p class="lecturer-title text-light mb-0">
+                        {% if 'lecturer_email' in session %}
+                        {{ session.lecturer_email }}
+                        {% else %}
+                        人工智能與機器學習
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <hr class="sidebar-divider">
+                
+                <div class="text-center mb-4">
+                    <h4 class="text-white">功能選單</h4>
+                </div>
+                
+                <div class="main-menu px-2">
+                    <a href="/" class="menu-item {% if request.path == '/' %}active{% endif %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>首頁</span>
+                    </a>
+                    <a href="/presentation/1" class="menu-item {% if '/presentation' in request.path %}active{% endif %}">
+                        <i class="bi bi-file-earmark-slides-fill"></i>
+                        <span>課程簡報</span>
+                    </a>
+                    <a href="/ai-demo" class="menu-item {% if '/ai-demo' in request.path %}active{% endif %}">
+                        <i class="bi bi-robot"></i>
+                        <span>AI演示</span>
+                    </a>
+                    <a href="/resources" class="menu-item {% if '/resources' in request.path %}active{% endif %}">
+                        <i class="bi bi-journal-text"></i>
+                        <span>課程資源</span>
+                    </a>
+                    <a href="/qa" class="menu-item {% if '/qa' in request.path %}active{% endif %}">
+                        <i class="bi bi-chat-dots"></i>
+                        <span>問答區</span>
+                    </a>
+                </div>
+                
+                <hr class="sidebar-divider">
+                
+                <div class="sidebar-footer text-center text-white-50 py-3">
+                    <small>&copy; 2023 課程互動平台</small>
+                </div>
+            </div>
+            
+            <!-- 主內容區 -->
+            <div class="col-md-9 col-lg-10 col-sm-8 main-content">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 使用說明模態框 -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-info-circle me-2"></i>使用說明
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="accordion" id="helpAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                    如何切換簡報內容？
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>在課程簡報頁面中，您可以通過下拉選單選擇不同的簡報檔案。選擇後，系統會自動加載所選的簡報。</p>
+                                    <p>使用簡報下方的"上一頁"和"下一頁"按鈕可以切換幻燈片頁面。您也可以使用鍵盤的左右方向鍵進行導航。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                    如何使用AI演示功能？
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>AI演示頁面提供了文字生成和圖像生成兩個功能：</p>
+                                    <ul>
+                                        <li>文字生成：在輸入框中輸入提示詞，然後點擊"生成文字"按鈕，AI會根據您的提示生成相關文本內容。</li>
+                                        <li>圖像生成：在輸入框中描述您想要的圖像，點擊"生成圖像"按鈕，AI會嘗試創建符合描述的圖像。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 講師登入模態框 -->
+    <div class="modal fade" id="lecturerLoginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-badge me-2"></i>講師登入
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/lecturer/login" method="post" id="lecturerLoginForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">用戶名</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">密碼</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-key"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
+                            <label class="form-check-label" for="rememberMe">記住我</label>
+                        </div>
+                        <div class="alert alert-danger d-none" id="loginError"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="loginBtn">登入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 自定義 JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html> 

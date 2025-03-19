@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}主頁 - 課程互動平台{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="p-5 mb-4 bg-light rounded-3">
+                <div class="container-fluid py-5">
+                    <h1 class="display-5 fw-bold"><i class="bi bi-mortarboard-fill me-3 text-primary"></i>歡迎使用課程互動平台</h1>
+                    <p class="col-md-8 fs-4">本平台旨在提供更好的線上學習體驗，讓您輕鬆瀏覽課程內容、參與互動與討論。</p>
+                    <a href="/presentation/1" class="btn btn-primary btn-lg mt-3">
+                        <i class="bi bi-file-earmark-slides me-2"></i>開始瀏覽課程
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-file-earmark-slides text-primary me-2"></i>課程簡報
+                    </h5>
+                    <p class="card-text">瀏覽最新的課程簡報內容，隨時掌握學習進度。</p>
+                    <a href="/presentation/1" class="btn btn-outline-primary">前往查看</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-robot text-primary me-2"></i>AI 演示
+                    </h5>
+                    <p class="card-text">體驗人工智能的實際應用，包括文字生成和圖像生成。</p>
+                    <a href="/ai-demo" class="btn btn-outline-primary">開始體驗</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-chat-dots text-primary me-2"></i>問答區
+                    </h5>
+                    <p class="card-text">提出您的問題並查看回答，與教師和同學進行互動。</p>
+                    <a href="/qa" class="btn btn-outline-primary">進入問答區</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bell me-2"></i>最新公告
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">期中考試通知</h5>
+                                <small class="text-muted">3 天前</small>
+                            </div>
+                            <p class="mb-1">期中考試將於下週一舉行，請做好準備。考試範圍包括第1-5週的所有內容。</p>
+                        </div>
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">新增課程資源</h5>
+                                <small class="text-muted">1 週前</small>
+                            </div>
+                            <p class="mb-1">已上傳第3-4週課程的補充資料，請前往資源區查看下載。</p>
+                        </div>
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">AI演示功能上線</h5>
+                                <small class="text-muted">2 週前</small>
+                            </div>
+                            <p class="mb-1">AI演示功能已上線，包括文字生成和圖像生成兩個模組，歡迎體驗。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
