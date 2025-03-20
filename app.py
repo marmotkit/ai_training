@@ -10,6 +10,7 @@ from datetime import datetime
 import io
 from pptx import Presentation
 from PIL import Image
+from announcement_routes import register_announcement_routes
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -22,6 +23,7 @@ QUESTIONS_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'questions.json')
 REFERENCES_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'references.json')
 SUPPLEMENTARY_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'supplementary.json')
 AI_DEMOS_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'ai_demos.json')
+ANNOUNCEMENTS_FILE = os.path.join(CURRENT_DIR, 'static', 'data', 'announcements.json')
 SLIDES_DIR = os.path.join(CURRENT_DIR, 'static', 'slides')
 UPLOAD_FOLDER = os.path.join(CURRENT_DIR, 'static', 'uploads')
 AI_DEMO_VIDEOS_FOLDER = os.path.join(CURRENT_DIR, 'static', 'ai_demo_videos')
@@ -432,6 +434,7 @@ questions = load_data_from_file(QUESTIONS_FILE, default_questions)
 references = load_data_from_file(REFERENCES_FILE, default_references)
 supplementary = load_data_from_file(SUPPLEMENTARY_FILE, default_supplementary)
 ai_demos = load_data_from_file(AI_DEMOS_FILE, default_ai_demos)
+announcements = load_data_from_file(ANNOUNCEMENTS_FILE, [])
 
 # 允許的檔案類型
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -640,29 +643,27 @@ def lecturer_logout():
 @app.route('/lecturer/dashboard')
 @login_required
 def lecturer_dashboard():
-    # 獲取最新的數據
-    global questions, presentations, uploads, references, supplementary, ai_demos
-    questions = load_data_from_file(QUESTIONS_FILE, default_questions)
+    # 加載各種數據
     presentations = load_data_from_file(PRESENTATIONS_FILE, default_presentations)
+    references = load_data_from_file(REFERENCES_FILE, default_references)
     supplementary = load_data_from_file(SUPPLEMENTARY_FILE, default_supplementary)
-    ai_demos = load_data_from_file(AI_DEMOS_FILE, default_ai_demos)
+    questions = load_data_from_file(QUESTIONS_FILE, [])
+    ai_demos = load_data_from_file(AI_DEMOS_FILE, [])
+    announcements = load_data_from_file(ANNOUNCEMENTS_FILE, [])
     
-    # 加載講師信息
-    lecturer_info = lecturer_accounts.get(session.get('lecturer_username'))
+    # 按日期排序問題，最新的在前面
+    questions.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
     
-    # 獲取未回答的問題數量
-    unanswered_questions_count = sum(1 for q in questions if q.get('answer') is None)
+    # 按日期排序公告，最新的在前面
+    announcements.sort(key=lambda x: x.get('date', ''), reverse=True)
     
-    # 加載教材數據
     return render_template('lecturer/dashboard.html', 
-                          lecturer=lecturer_info, 
                           presentations=presentations, 
-                          uploads=uploads,
-                          references=references,
-                          supplementary=supplementary,
+                          references=references, 
+                          supplementary=supplementary, 
                           questions=questions,
                           ai_demos=ai_demos,
-                          unanswered_questions_count=unanswered_questions_count)
+                          announcements=announcements)
 
 @app.route('/lecturer/answer-question', methods=['POST'])
 def lecturer_answer_question():
@@ -1282,19 +1283,16 @@ def edit_reference():
                 reference['title'] = new_title
                 reference['url'] = new_url
                 reference['date'] = datetime.now().strftime('%Y/%m/%d')
-                print(f"更新後的參考文獻: {reference}")
-                break
-        else:
-            print(f"找不到指定的參考文獻 ID: {reference_id}")
-            return jsonify({"success": False, "message": "找不到指定的參考文獻"})
+                
+                # 保存更新後的數據
+                success = save_data_to_file(REFERENCES_FILE, references)
+                print(f"保存結果: {success}")
+                if success:
+                    return jsonify({"success": True, "message": "參考文獻已更新"})
+                else:
+                    return jsonify({"success": False, "message": "保存數據時發生錯誤"})
         
-        # 保存更新後的數據
-        success = save_data_to_file(REFERENCES_FILE, references)
-        print(f"保存結果: {success}")
-        if success:
-            return jsonify({"success": True, "message": "參考文獻已更新"})
-        else:
-            return jsonify({"success": False, "message": "保存數據時發生錯誤"})
+        return jsonify({"success": False, "message": "找不到指定的參考文獻"})
     
     except Exception as e:
         app.logger.error(f"編輯參考文獻時發生錯誤: {str(e)}")
@@ -1727,6 +1725,9 @@ def delete_ai_demo():
     save_data_to_file(AI_DEMOS_FILE, ai_demos)
     
     return jsonify({"success": True, "message": "AI 演示已成功刪除"})
+
+# 註冊公告管理相關路由
+register_announcement_routes(app, login_required, load_data_from_file, save_data_to_file, ANNOUNCEMENTS_FILE)
 
 if __name__ == '__main__':
     # 確保資料夾存在

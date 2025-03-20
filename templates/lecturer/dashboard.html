@@ -193,6 +193,77 @@
         </div>
     </div>
 
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-megaphone me-2"></i>最新公告管理
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+                                <i class="bi bi-plus-circle me-1"></i>新增公告
+                            </button>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>標題</th>
+                                            <th>內容</th>
+                                            <th>日期</th>
+                                            <th>重要性</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if announcements|length > 0 %}
+                                            {% for announcement in announcements %}
+                                                <tr>
+                                                    <td>{{ announcement.title }}</td>
+                                                    <td>{{ announcement.content|truncate(50) }}</td>
+                                                    <td>{{ announcement.date }}</td>
+                                                    <td>
+                                                        {% if announcement.important %}
+                                                            <span class="badge bg-danger">重要</span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">一般</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-info me-1" onclick="editAnnouncementBtn(this)" 
+                                                                data-id="{{ announcement.id }}" 
+                                                                data-title="{{ announcement.title }}" 
+                                                                data-content="{{ announcement.content }}"
+                                                                data-important="{{ announcement.important|lower }}">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger" onclick="deleteAnnouncementBtn(this)" 
+                                                                data-id="{{ announcement.id }}" 
+                                                                data-title="{{ announcement.title }}">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="5" class="text-center">目前沒有公告</td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- AI 演示管理區塊 -->
     <div class="row mb-4">
         <div class="col-12">
@@ -728,6 +799,91 @@
     </div>
 </div>
 
+<!-- 添加公告模態框 -->
+<div class="modal fade" id="addAnnouncementModal" tabindex="-1" aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addAnnouncementModalLabel">新增公告</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addAnnouncementForm">
+                    <div class="mb-3">
+                        <label for="announcementTitle" class="form-label">公告標題</label>
+                        <input type="text" class="form-control" id="announcementTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="announcementContent" class="form-label">公告內容</label>
+                        <textarea class="form-control" id="announcementContent" name="content" rows="5" required></textarea>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="announcementImportant" name="important">
+                        <label class="form-check-label" for="announcementImportant">標記為重要公告</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="confirmAddAnnouncement">新增公告</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 編輯公告模態框 -->
+<div class="modal fade" id="editAnnouncementModal" tabindex="-1" aria-labelledby="editAnnouncementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editAnnouncementModalLabel">編輯公告</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAnnouncementForm">
+                    <input type="hidden" id="editAnnouncementId" name="id">
+                    <div class="mb-3">
+                        <label for="editAnnouncementTitle" class="form-label">公告標題</label>
+                        <input type="text" class="form-control" id="editAnnouncementTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAnnouncementContent" class="form-label">公告內容</label>
+                        <textarea class="form-control" id="editAnnouncementContent" name="content" rows="5" required></textarea>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editAnnouncementImportant" name="important">
+                        <label class="form-check-label" for="editAnnouncementImportant">標記為重要公告</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="confirmEditAnnouncement">更新公告</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 刪除公告確認模態框 -->
+<div class="modal fade" id="deleteAnnouncementModal" tabindex="-1" aria-labelledby="deleteAnnouncementModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAnnouncementModalLabel">確認刪除</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>確定要刪除 <span id="deleteAnnouncementTitle" class="fw-bold"></span> 公告嗎？此操作無法撤銷。</p>
+                <input type="hidden" id="deleteAnnouncementId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteAnnouncement">確認刪除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- 查看問題模態框 -->
 <div class="modal fade" id="viewQuestionModal" tabindex="-1" aria-labelledby="viewQuestionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -750,7 +906,7 @@
                     </div>
                 </div>
                 <div id="viewAnswerSection" class="mb-3">
-                    <h6 class="text-success">講師回答:</h6>
+                    <h6 class="text-success">講師回答：</h6>
                     <div class="card bg-light">
                         <div class="card-body">
                             <p id="viewQuestionAnswer"></p>
@@ -758,7 +914,7 @@
                     </div>
                 </div>
                 <div id="viewCommentsSection">
-                    <h6 class="text-info">討論:</h6>
+                    <h6 class="text-info">討論：</h6>
                     <div id="viewQuestionComments" class="mb-3">
                         <!-- 評論將在這裡動態添加 -->
                     </div>
@@ -898,6 +1054,32 @@ function deleteAiDemoBtn(button) {
     
     document.getElementById('deleteAiDemoId').value = demoId;
     document.getElementById('deleteAiDemoTitle').textContent = demoTitle;
+    
+    new bootstrap.Modal(document.getElementById('deleteAiDemoModal')).show();
+}
+
+function editAnnouncementBtn(button) {
+    const id = button.getAttribute('data-id');
+    const title = button.getAttribute('data-title');
+    const content = button.getAttribute('data-content');
+    const important = button.getAttribute('data-important') === 'true';
+    
+    document.getElementById('editAnnouncementId').value = id;
+    document.getElementById('editAnnouncementTitle').value = title;
+    document.getElementById('editAnnouncementContent').value = content;
+    document.getElementById('editAnnouncementImportant').checked = important;
+    
+    new bootstrap.Modal(document.getElementById('editAnnouncementModal')).show();
+}
+
+function deleteAnnouncementBtn(button) {
+    const id = button.getAttribute('data-id');
+    const title = button.getAttribute('data-title');
+    
+    document.getElementById('deleteAnnouncementId').value = id;
+    document.getElementById('deleteAnnouncementTitle').textContent = title;
+    
+    new bootstrap.Modal(document.getElementById('deleteAnnouncementModal')).show();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1543,6 +1725,128 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error:', error);
             });
     }
+    
+    // 公告管理相關事件處理
+    document.getElementById('confirmAddAnnouncement').addEventListener('click', function() {
+        const title = document.getElementById('announcementTitle').value;
+        const content = document.getElementById('announcementContent').value;
+        const important = document.getElementById('announcementImportant').checked;
+        
+        if (!title.trim() || !content.trim()) {
+            showAlert('danger', '標題和內容不能為空');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('important', important);
+        
+        fetch('/lecturer/add-announcement', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                
+                // 關閉模態框
+                bootstrap.Modal.getInstance(document.getElementById('addAnnouncementModal')).hide();
+                
+                // 重新載入頁面以顯示新公告
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', '發生錯誤，請稍後再試');
+        });
+    });
+    
+    document.getElementById('confirmEditAnnouncement').addEventListener('click', function() {
+        const id = document.getElementById('editAnnouncementId').value;
+        const title = document.getElementById('editAnnouncementTitle').value;
+        const content = document.getElementById('editAnnouncementContent').value;
+        const important = document.getElementById('editAnnouncementImportant').checked;
+        
+        if (!title.trim() || !content.trim()) {
+            showAlert('danger', '標題和內容不能為空');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('important', important);
+        
+        fetch('/lecturer/edit-announcement', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                
+                // 關閉模態框
+                bootstrap.Modal.getInstance(document.getElementById('editAnnouncementModal')).hide();
+                
+                // 重新載入頁面以顯示更新後的公告
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', '發生錯誤，請稍後再試');
+        });
+    });
+    
+    document.getElementById('confirmDeleteAnnouncement').addEventListener('click', function() {
+        const id = document.getElementById('deleteAnnouncementId').value;
+        
+        const formData = new FormData();
+        formData.append('id', id);
+        
+        fetch('/lecturer/delete-announcement', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message);
+                
+                // 關閉模態框
+                bootstrap.Modal.getInstance(document.getElementById('deleteAnnouncementModal')).hide();
+                
+                // 重新載入頁面以更新公告列表
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showAlert('danger', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', '發生錯誤，請稍後再試');
+        });
+    });
+    
+    // 清空添加公告表單
+    document.getElementById('addAnnouncementModal').addEventListener('hidden.bs.modal', function() {
+        document.getElementById('addAnnouncementForm').reset();
+    });
 });
 </script>
 {% endblock %}

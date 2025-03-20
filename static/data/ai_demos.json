@@ -18,20 +18,38 @@
         "steps_url": "http://localhost:8000/tutorial"
     },
     {
-        "id": 2,
-        "title": "機器學習模型訓練演示",
-        "description": "展示如何訓練和評估機器學習模型",
-        "demo_url": "https://example.com/ml-demo",
+        "id": 3,
+        "title": "使用開源 LLM（大型語言模型）應用整合平台，建立自訂的對話型 AI 應用",
+        "description": "實際應用場景：\r\n企業內部的智能客服\r\n文件問答、知識管理平台\r\nAI 助理或顧問服務\r\n資料分析、自動報告生成工具",
+        "demo_url": "https://anythingllm.com/desktop",
         "steps": [
-            "1. 準備訓練數據",
-            "2. 選擇模型類型",
-            "3. 設置訓練參數",
-            "4. 開始訓練過程",
-            "5. 評估模型性能"
+            "1. 本地安裝 Ollama 生成式大語言模型\r",
+            "2. 本地安裝 AnythingLLM 應用整合平台，建立自訂的對話型 AI 應用\r",
+            "3. 上傳文件進行向量化 RAG\r",
+            "4. 進行知識問答\r"
         ],
-        "tools": "Python, scikit-learn, TensorFlow, Pandas",
-        "video_url": "ml_training_basics.mp4",
-        "created_at": "2025-03-19T12:30:00",
-        "updated_at": "2025-03-19T12:30:00"
+        "steps_url": "https://anythingllm.com/desktop",
+        "tools": "Ollama, AnythingLLM",
+        "video_url": "",
+        "created_at": "2025-03-19T23:26:36.692385",
+        "updated_at": "2025-03-19T23:30:41.616606"
+    },
+    {
+        "id": 4,
+        "title": "Line Bot 智慧客服系統實作",
+        "description": "建置一個簡易的智慧客服聊天機器人，能自動回答常見的客戶提問，例如產品資訊、訂單狀態查詢等。​\r\nZIPY.AI\r\n 透過此實作，體驗 AI 如何提升客戶服務效率，同時讓非技術人員也能參與優化客服流程。\r\n",
+        "demo_url": "https://chat.line.biz/U5e17850328c9ab6ea59797c3c24bc6a9/chat/Ubf15430ee7e80a370f19bc0ccd248221",
+        "steps": [
+            "1. 申請 Line Offical account \r",
+            "2. 建立 Line Message AI\r",
+            "3. 申請 OpenAI key\r",
+            "4. 建立一個智能體觸發 OpenAI\r",
+            "5. 接下來就可以在 Line 上面進行客服問詢 "
+        ],
+        "steps_url": "",
+        "tools": "## 使用技術  ### 主要框架與套件 - **Flask**: Python Web 框架，用於建立 Web 服務 - **Line Bot SDK v3**: 用於與 Line Messaging API 進行互動 - **OpenAI API**: 使用 GPT-3.5-turbo 模型進行自然語言處理 - **Python-dotenv**: 用於管理環境變數 - **Ngrok**: 用於將本地服務暴露到公網  ### AI 模型 - **GPT-3.5-turbo**: OpenAI 的大型語言模型，用於生成回應   - 特點：理解上下文、生成自然對話   - 用途：處理客戶詢問並生成專業回應",
+        "video_url": "",
+        "created_at": "2025-03-20T00:43:11.358087",
+        "updated_at": "2025-03-20T00:43:11.358087"
     }
 ]
