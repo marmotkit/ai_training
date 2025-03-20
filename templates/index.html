@@ -64,27 +64,26 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group">
-                        <div class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">期中考試通知</h5>
-                                <small class="text-muted">3 天前</small>
+                        {% if announcements %}
+                            {% for announcement in announcements %}
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">
+                                            {% if announcement.important %}
+                                                <span class="badge bg-danger me-2">重要</span>
+                                            {% endif %}
+                                            {{ announcement.title }}
+                                        </h5>
+                                        <small class="text-muted">{{ announcement.date }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ announcement.content }}</p>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="list-group-item">
+                                <p class="mb-0 text-muted">目前沒有公告</p>
                             </div>
-                            <p class="mb-1">期中考試將於下週一舉行，請做好準備。考試範圍包括第1-5週的所有內容。</p>
-                        </div>
-                        <div class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">新增課程資源</h5>
-                                <small class="text-muted">1 週前</small>
-                            </div>
-                            <p class="mb-1">已上傳第3-4週課程的補充資料，請前往資源區查看下載。</p>
-                        </div>
-                        <div class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">AI演示功能上線</h5>
-                                <small class="text-muted">2 週前</small>
-                            </div>
-                            <p class="mb-1">AI演示功能已上線，包括文字生成和圖像生成兩個模組，歡迎體驗。</p>
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

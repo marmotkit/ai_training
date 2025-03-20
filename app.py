@@ -482,7 +482,12 @@ def index():
         except Exception as e:
             print(f"載入講師資料時發生錯誤: {str(e)}")
     
-    return render_template('index.html', presentations=presentations, questions=questions)
+    # 載入公告數據
+    announcements = load_data_from_file(ANNOUNCEMENTS_FILE, [])
+    # 按日期排序，最新的在前面
+    announcements.sort(key=lambda x: x.get('date', ''), reverse=True)
+    
+    return render_template('index.html', presentations=presentations, questions=questions, announcements=announcements)
 
 @app.route('/presentation')
 def presentation():
